@@ -21,7 +21,6 @@ export default function Home({ params }) {
   const [pesanMenu, setPesanMenu] = useState([]);
   const [currentImage, setCurrentImage] = useState("");
   const [detail, setDetail] = useState("");
-  const { slug } = React.use(params);
   const searchParams = useSearchParams(); // Mengambil search params dari URL
   const id = searchParams.get("id"); // Mendapatkan parameter 'id' dari query
   const dispatch = useDispatch();
@@ -49,7 +48,7 @@ export default function Home({ params }) {
     const fetchDrinks = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/menu/showall/${slug}`
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/menu/showall/${process.env.NEXT_PUBLIC_COMPANY_NAME}`
         );
         setCategory(response.data[0].categories);
         setProfile(response.data[0].profile);
@@ -223,7 +222,7 @@ export default function Home({ params }) {
                 Total item: {pesanan.length}
               </p>
               <Link
-                href={`/transition`}
+                href={`/transaction`}
                 className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition"
               >
                 Checkout

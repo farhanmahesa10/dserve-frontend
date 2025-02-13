@@ -132,7 +132,7 @@ export default function Transition() {
       });
 
       await dispatch(resetPesanan());
-      router.push(`/transition/${transaksiId}`);
+      router.push(`/transaction/${transaksiId}`);
     } catch (error) {
       console.error("Error saat mengirim pesanan:", error);
       setLoadingButton(false);

@@ -42,7 +42,7 @@ export default function Navbar({ profile }) {
             </div>
             <div className=" md:flex md:justify-star cursor-pointer">
               <Link
-                href={`/menu/${"cecep"}`}
+                href={`/menu`}
                 className="text-black capitalize font-semibold text-xl md:text-black py-2 flex hover:text-yellow-700 hover:border-yellow-700 hover:border-b-2"
               >
                 Menu

@@ -21,8 +21,6 @@ export default function Home({ params }) {
   const [profile, setProfile] = useState([]);
   const [contact, setContact] = useState([]);
   const [rekomendation, setRekomendation] = useState([]);
-  // const { slug } = React.use(params);
-  const [slug, setSlug] = useState("cecep");
   const dispatch = useDispatch();
   const { data } = useSelector((state) => state.counter);
 
@@ -30,7 +28,7 @@ export default function Home({ params }) {
     const fetchAll = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/outlet/showalltable/${slug}`
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/outlet/showalltable/${process.env.NEXT_PUBLIC_COMPANY_NAME}`
         );
 
         const data = response.data;
@@ -51,7 +49,7 @@ export default function Home({ params }) {
     const fetchRekomendation = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/category/showall/${slug}/true`
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/category/showall/${process.env.NEXT_PUBLIC_COMPANY_NAME}/true`
         );
 
         const data = response.data;
@@ -67,7 +65,7 @@ export default function Home({ params }) {
   return (
     <div className="bg-gradient-to-br  from-white to-yellow-100">
       <Navbar profile={profile} />
-      <div className="pt-[40px] container p-0 ">
+      <div className="pt-[1px] container p-0 ">
         <Slider events={event} />
         <div className="px-[20px] md:px-[50px] lg:px-[100px]">
           <div className=" py-6">
@@ -96,7 +94,7 @@ export default function Home({ params }) {
                           >
                             <div className="">
                               <Link
-                                href={`/menu/${slug}?id=${encodeURIComponent(
+                                href={`/menu/?id=${encodeURIComponent(
                                   item.title
                                 )}`}
                               >

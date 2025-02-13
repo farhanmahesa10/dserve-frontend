@@ -14,7 +14,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 
 const Slider = ({ events }) => {
   return (
-    <div className="w-full mt-14 h-full">
+    <div className="w-full mt-10 h-full">
       <Swiper
         pagination={true}
         modules={[Pagination, Autoplay]}

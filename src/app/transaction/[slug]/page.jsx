@@ -44,7 +44,7 @@ export default function ({ params }) {
   };
 
   const handleMenu = () => {
-    router.push(`/menu/${outlet.outlet_name}`);
+    router.push(`/menu`);
   };
 
   return (

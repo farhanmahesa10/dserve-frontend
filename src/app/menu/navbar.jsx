@@ -55,7 +55,7 @@ export default function Navbar({ profile }) {
               <ul className="block font-nunito font-bold w-full md:flex justify-end gap-10  ">
                 <li className="  md:flex md:justify-center cursor-pointer">
                   <Link
-                    href={`/home/${lastPath}`}
+                    href={`/`}
                     className="text-black md:text-black py-2 flex hover:text-yellow-700 hover:border-yellow-700 hover:border-b-2"
                   >
                     Home
