@@ -58,18 +58,21 @@ export const counterSlice = createSlice({
       }
     },
     addOutlet: (state, action) => {
-      const { id, outlet_name } = action.payload;
+      const { id, outlet_name, profile, contacts } = action.payload;
 
       // Ganti data outlet lama dengan data baru
       if (id && outlet_name) {
-        state.outlet[0] = { id, outlet_name };
+        state.outlet[0] = { id, outlet_name, profile, contacts };
       }
+    },
+    resetPesanan: (state) => {
+      state.pesanan = [];
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, toggleMenuId, addOutlet } =
+export const { increment, decrement, toggleMenuId, addOutlet, resetPesanan } =
   counterSlice.actions;
 
 export default counterSlice.reducer;

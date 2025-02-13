@@ -34,10 +34,16 @@ export default function Home({ params }) {
         addOutlet({
           id: outlet.id,
           outlet_name: outlet.outlet_name,
+          profile: {
+            address: profile.address,
+            cafe_name: profile.cafe_name,
+            logo: profile.logo,
+          },
+          contacts: outlet.contacts,
         })
       );
     }
-  }, [outlet, dispatch]);
+  }, [outlet, profile, dispatch]);
 
   useEffect(() => {
     const fetchDrinks = async () => {
@@ -56,7 +62,6 @@ export default function Home({ params }) {
     };
     fetchDrinks();
   }, []);
-  console.log(outlet);
 
   useEffect(() => {
     if (id || category) {

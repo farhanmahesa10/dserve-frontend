@@ -11,7 +11,6 @@ import { HomeSkeleton } from "./homeSkeleton";
 import Slider from "./slider";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { getData } from "@/store/slice";
 
 // import Link from "next/link";
 

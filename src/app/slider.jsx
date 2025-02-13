@@ -14,7 +14,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 
 const Slider = ({ events }) => {
   return (
-    <div className="w-full h-full">
+    <div className="w-full mt-14 h-full">
       <Swiper
         pagination={true}
         modules={[Pagination, Autoplay]}
@@ -36,12 +36,12 @@ const Slider = ({ events }) => {
                   backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.image})`,
                 }}
               >
-                <div className="text-center text-white p-4 bg-black bg-opacity-50 rounded-lg">
-                  <h2 className="text-2xl md:text-5xl font-bold mb-2">
+                <div className="text-center text-white p-2 bg-black bg-opacity-50 rounded-lg">
+                  <h2 className="text-2xl  font-bold capitalize mb-1">
                     {item.title}
                   </h2>
                   <p className="max-w-xl mx-auto text-sm md:text-lg">
-                    {item.description}
+                    {item.descriptions}
                   </p>
                 </div>
               </div>

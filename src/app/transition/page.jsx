@@ -1,12 +1,13 @@
 "use client";
 
-import { decrement, increment } from "@/store/slice";
+import { decrement, increment, resetPesanan } from "@/store/slice";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { useRouter } from "next/navigation";
+import { Toaster, toast } from "react-hot-toast";
 
 const socket = io("http://localhost:3000", {
   transports: ["websocket", "polling"],
@@ -24,6 +25,8 @@ export default function Transition() {
   });
   const [table, setTable] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingButton, setLoadingButton] = useState(false);
+
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
   const dataOutlet = useSelector((state) => state.counter.outlet);
@@ -61,6 +64,17 @@ export default function Transition() {
 
   // Handle Checkout dengan Socket.io
   const handleCheckOut = async () => {
+    if (!transition.id_table) {
+      toast.error("please fill in the ");
+      setLoadingButton(false);
+      return;
+    }
+    if (!transition.by_name) {
+      toast.error("please fill in the name");
+      setLoadingButton(false);
+      return;
+    }
+    setLoadingButton(true);
     try {
       const total = pesanan.reduce(
         (acc, item) => acc + item.qty * item.price,
@@ -76,7 +90,6 @@ export default function Transition() {
         total_pay: total,
         note: transition.note,
       };
-      console.log(dataCreateTransaksi, "popopo");
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/transaction/create`,
@@ -91,9 +104,7 @@ export default function Transition() {
 
       const dataTransaksi = {
         id_transaction: transaksiId,
-        outlet: {
-          outlet_name: dataOutlet[0].outlet_name,
-        },
+        outlet: dataOutlet[0],
         by_name: transition.by_name,
         table: {
           number_table: transition.number_table,
@@ -115,20 +126,16 @@ export default function Transition() {
         })),
       };
 
-      console.log(
-        "Mengirim pesanan ke server melalui socket.io:",
-        dataTransaksi
-      );
-
       socket.emit("order", {
         id_outlet: dataOutlet[0].id,
         orderData: dataTransaksi,
       });
 
+      await dispatch(resetPesanan());
       router.push(`/transition/${transaksiId}`);
-      localStorage.removeItem("persist:counter");
     } catch (error) {
       console.error("Error saat mengirim pesanan:", error);
+      setLoadingButton(false);
     }
   };
 
@@ -152,6 +159,7 @@ export default function Transition() {
 
   return (
     <div className="container p-4">
+      <Toaster position="top-center" reverseOrder={false} />
       <h1 className="text-center text-xl font-bold mb-4">Rincian Pesanan</h1>
 
       {pesanan.length > 0 ? (
@@ -192,79 +200,76 @@ export default function Transition() {
         <p className="text-center text-gray-500">Tidak ada pesanan</p>
       )}
 
+      {/* Pilih Meja */}
+      <div className="p-4 ">
+        <div className="flex gap-4 ">
+          <label htmlFor="id_table" className="min-w-20 font-medium">
+            Table:
+          </label>
+          <select
+            className="border p-2 rounded-lg border-gray-300 w-52 h-10"
+            id="id_table"
+            name="id_table"
+            value={transition.id_table}
+            onChange={(e) => {
+              const selectedOption = e.target.options[e.target.selectedIndex];
+              setTransition({
+                ...transition,
+                id_table: e.target.value,
+                number_table: selectedOption.dataset.number, // Ambil number_table dari data-number
+              });
+            }}
+          >
+            <option value="" disabled>
+              Select table Number
+            </option>
+            {table.map((value) => (
+              <option
+                key={value.id}
+                value={value.id}
+                data-number={value.number_table}
+              >
+                {value.number_table}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {/* nama */}
-      <div className="p-4 mb-4">
+      <div className="p-4 ">
         <div>
           <div className="flex items-center gap-4">
-            <label htmlFor="by_name" className="font-medium">
+            <label htmlFor="by_name" className="min-w-20 font-medium">
               nama:
             </label>
             <input
               type="text"
-              placeholder="Atas nama"
+              placeholder="By name"
               name="by_name"
               value={transition.by_name}
               onChange={handleChange}
               className="border rounded-md p-2 w-full shadow-inner focus:outline-primary100"
+              required
             />
-          </div>
-        </div>
-      </div>
-
-      {/* Pilih Meja */}
-      <div className="p-4 mb-4">
-        <div>
-          <div className="flex gap-4 mb-2">
-            <label htmlFor="id_table" className="min-w-16  font-medium">
-              Table:
-            </label>
-            <select
-              className="border p-2 rounded-lg border-gray-300 w-52 h-10"
-              id="id_table"
-              name="id_table"
-              value={transition.id_table}
-              onChange={(e) => {
-                const selectedOption = e.target.options[e.target.selectedIndex];
-                setTransition({
-                  ...transition,
-                  id_table: e.target.value,
-                  number_table: selectedOption.dataset.number, // Ambil number_table dari data-number
-                });
-              }}
-            >
-              <option value="" disabled>
-                Select table Number
-              </option>
-              {table.map((value) => (
-                <option
-                  key={value.id}
-                  value={value.id}
-                  data-number={value.number_table}
-                >
-                  {value.number_table}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
       </div>
 
       {/* Catatan */}
-      <div className="p-4 mb-4">
-        <div>
-          <div className="flex items-center gap-4">
-            <label htmlFor="note" className="font-medium">
-              Catatan:
-            </label>
-            <input
-              type="text"
-              placeholder="catatan"
-              name="note"
-              value={transition.note}
-              onChange={handleChange}
-              className="border rounded-md p-2 w-full shadow-inner focus:outline-primary100"
-            />
-          </div>
+      <div className="p-4 ">
+        <div className="flex items-center gap-4">
+          <label htmlFor="note" className="min-w-20 font-medium">
+            Catatan:
+          </label>
+          <input
+            type="text"
+            placeholder="catatan"
+            name="note"
+            value={transition.note}
+            onChange={handleChange}
+            className="border rounded-md p-2 w-full shadow-inner focus:outline-primary100"
+          />
         </div>
       </div>
 
@@ -285,9 +290,10 @@ export default function Transition() {
         <div className="container flex justify-center bg-primary50 rounded-lg">
           <button
             onClick={handleCheckOut}
+            disabled={loadingButton}
             className="w-full py-3 text-lg text-white"
           >
-            Pesan Sekarang
+            {loadingButton ? "Loading..." : "Pesan Sekarang"}
           </button>
         </div>
       </div>

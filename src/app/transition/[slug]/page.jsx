@@ -47,8 +47,6 @@ export default function ({ params }) {
     router.push(`/menu/${outlet.outlet_name}`);
   };
 
-  console.log(outlet);
-
   return (
     <div className="max-w-sm mx-auto p-6 mt-20 bg-white shadow-lg border rounded-lg font-mono text-sm">
       {/* Notifikasi Pesanan Berhasil */}
