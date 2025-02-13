@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 
 import Header from "./header";
-import Navbar from "./navbar";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import MenuSkeleton from "./menuSkeleton";
@@ -18,14 +17,12 @@ export default function Home({ params }) {
   const [outlet, setOutlet] = useState([]);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [pesanMenu, setPesanMenu] = useState([]);
   const [currentImage, setCurrentImage] = useState("");
   const [detail, setDetail] = useState("");
   const searchParams = useSearchParams(); // Mengambil search params dari URL
   const id = searchParams.get("id"); // Mendapatkan parameter 'id' dari query
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
-  const dataOutlet = useSelector((state) => state.counter.outlet);
 
   useEffect(() => {
     if (outlet) {
@@ -64,13 +61,13 @@ export default function Home({ params }) {
 
   useEffect(() => {
     if (id || category) {
-      const element = document.getElementById(id); // Temukan elemen dengan ID
+      const element = document.getElementById(id);
       if (element) {
-        const offset = 110; // Jarak tambahan ke atas
+        const offset = 110;
         const topPosition =
-          element.getBoundingClientRect().top + window.scrollY; // Posisi elemen relatif ke viewport
+          element.getBoundingClientRect().top + window.scrollY;
         window.scrollTo({
-          top: topPosition - offset, // Mengurangi offset untuk membuat posisi lebih tinggi
+          top: topPosition - offset,
           behavior: "smooth",
         });
       }

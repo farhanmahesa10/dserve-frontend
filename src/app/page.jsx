@@ -6,13 +6,9 @@ import Contact from "./contact";
 import Gallery from "./gallery";
 import axios from "axios";
 import Link from "next/link";
-import Navbar from "./navbar";
 import { HomeSkeleton } from "./homeSkeleton";
 import Slider from "./slider";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-
-// import Link from "next/link";
+import Header from "./header";
 
 export default function Home({ params }) {
   const [outlet, setOutlet] = useState([]);
@@ -21,9 +17,8 @@ export default function Home({ params }) {
   const [profile, setProfile] = useState([]);
   const [contact, setContact] = useState([]);
   const [rekomendation, setRekomendation] = useState([]);
-  const dispatch = useDispatch();
-  const { data } = useSelector((state) => state.counter);
 
+  //buka semua table
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -37,14 +32,14 @@ export default function Home({ params }) {
         setGallery(data[0].galleries);
         setProfile(data[0].profile);
         setContact(data[0].contacts);
-        // setError(null);
       } catch (err) {
-        // setError("Failed to fetch drinks. Please try again later.");
         console.log(err);
       }
     };
     fetchAll();
   }, []);
+
+  //cari menu rekomendation
   useEffect(() => {
     const fetchRekomendation = async () => {
       try {
@@ -55,7 +50,6 @@ export default function Home({ params }) {
         const data = response.data;
         setRekomendation(data[0].categories);
       } catch (err) {
-        // setError("Failed to fetch drinks. Please try again later.");
         console.log(err);
       }
     };
@@ -64,7 +58,7 @@ export default function Home({ params }) {
 
   return (
     <div className="bg-gradient-to-br  from-white to-yellow-100">
-      <Navbar profile={profile} />
+      <Header profile={profile} />
       <div className="pt-[1px] container p-0 ">
         <Slider events={event} />
         <div className="px-[20px] md:px-[50px] lg:px-[100px]">

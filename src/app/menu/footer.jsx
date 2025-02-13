@@ -3,8 +3,6 @@
 import React from "react";
 
 export default function Footer({ outlet }) {
-  console.log(outlet.contacts, "popopopo");
-
   return (
     <footer className="bg-slate-400 pt-10 ">
       <div className="flex flex-wrap container">
@@ -33,13 +31,13 @@ export default function Footer({ outlet }) {
                   return (
                     <a
                       key={item.id}
-                      href="https://youtube.com"
+                      href={`${item.link}`}
                       target="_blank"
                       className="w-7 h-7 mr-3 rounded-full flex justify-center items-center mb-3"
                     >
                       <img
                         src={`${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.logo}`}
-                        alt={"contacts"}
+                        alt={`${item.contact_name}`}
                         className="w-7 h-7 object-cover"
                       />
                     </a>

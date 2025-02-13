@@ -2,17 +2,8 @@
 
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
 
-export default function Navbar({ profile }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname(); // Mendapatkan path saat ini, misalnya "/home/cecep"
-  const lastPath = pathname.split("/").pop();
-
-  const onClickHeader = () => {
-    setIsOpen(!isOpen);
-  };
-
+export default function Header({ profile }) {
   return (
     <header className="bg-white  shadow z-50 fixed w-full">
       <div className="mx-auto container  ">

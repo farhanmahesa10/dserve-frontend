@@ -32,18 +32,17 @@ export default function Transition() {
   const dataOutlet = useSelector((state) => state.counter.outlet);
   const router = useRouter();
 
+  // Mengambil data transaksi menggunakan axios dengan query params
   useEffect(() => {
     setIsLoading(true);
     const fetchData = async () => {
       if (dataOutlet[0].outlet_name) {
         try {
-          // Mengambil data transaksi menggunakan axios dengan query params
           const response = await axios.get(
             ` ${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/table/showcafename/${dataOutlet[0].outlet_name}`
           );
 
           const data = response.data;
-
           setTable(data);
         } catch (error) {
           console.error("Error fetching transaction data:", error);
@@ -58,7 +57,7 @@ export default function Transition() {
 
   useEffect(() => {
     if (pesanan.length === 0) {
-      router.push(`/menu/${dataOutlet[0].outlet_name}`);
+      router.push(`/menu`);
     }
   }, [pesanan, router]);
 
@@ -204,7 +203,7 @@ export default function Transition() {
       <div className="p-4 ">
         <div className="flex gap-4 ">
           <label htmlFor="id_table" className="min-w-20 font-medium">
-            Table:
+            No. Table/ Room:
           </label>
           <select
             className="border p-2 rounded-lg border-gray-300 w-52 h-10"
@@ -221,7 +220,7 @@ export default function Transition() {
             }}
           >
             <option value="" disabled>
-              Select table Number
+              Select Table/Room Number
             </option>
             {table.map((value) => (
               <option

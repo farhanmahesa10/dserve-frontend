@@ -9,10 +9,10 @@ export default function Header({ category, profile }) {
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      const offset = 75; // Jarak tambahan ke atas
-      const topPosition = element.getBoundingClientRect().top + window.scrollY; // Posisi elemen relatif ke viewport
+      const offset = 75;
+      const topPosition = element.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({
-        top: topPosition - offset, // Mengurangi offset untuk membuat posisi lebih tinggi
+        top: topPosition - offset,
         behavior: "smooth",
       });
     }
@@ -33,6 +33,7 @@ export default function Header({ category, profile }) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
+
   return (
     <div className=" fixed left-0 w-full z-50  shadow-md bg-white text-white ">
       {/* Navigation Section */}
