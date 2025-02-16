@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import React, { useState, useEffect } from "react";
-import { AboutSkeleton } from "./homeSkeleton";
+import { AboutSkeleton } from "../skeleton/homeSkeleton";
 
 export default function About({ profile }) {
   return (

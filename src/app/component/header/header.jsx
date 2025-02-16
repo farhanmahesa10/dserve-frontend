@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Header({ profile }) {
+  const pathname = usePathname();
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    setUrl(pathname);
+  }, [pathname]);
   return (
     <header className="bg-white  shadow z-50 fixed w-full">
       <div className="mx-auto container  ">
@@ -26,7 +33,9 @@ export default function Header({ profile }) {
             <div className="  cursor-pointer">
               <Link
                 href={`/`}
-                className="text-black capitalize font-semibold text-xl md:text-black py-2 flex hover:text-yellow-700 hover:border-yellow-700 hover:border-b-2"
+                className={`${
+                  url == "/" ? "text-yellow-700" : ""
+                }  capitalize font-semibold text-xl  py-2 flex hover:text-yellow-700`}
               >
                 Home
               </Link>
@@ -34,7 +43,9 @@ export default function Header({ profile }) {
             <div className=" md:flex md:justify-star cursor-pointer">
               <Link
                 href={`/menu`}
-                className="text-black capitalize font-semibold text-xl md:text-black py-2 flex hover:text-yellow-700 hover:border-yellow-700 hover:border-b-2"
+                className={`${
+                  url == "/menu" ? "text-yellow-700" : ""
+                }  capitalize font-semibold text-xl  py-2 flex hover:text-yellow-700`}
               >
                 Menu
               </Link>
