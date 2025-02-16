@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { HomeSkeleton } from "./homeSkeleton";
+import { HomeSkeleton } from "../skeleton/homeSkeleton";
 
 export default function Gallery({ gallery }) {
   const [currentIndex, setCurrentIndex] = useState(null);
