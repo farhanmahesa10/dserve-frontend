@@ -63,11 +63,19 @@ export default function Home({ params }) {
       {isError ? (
         <Error />
       ) : (
-        <div className="bg-gradient-to-br  from-white to-yellow-100">
-          <Header profile={profile} />
+        <div className="bg-slate-50">
+          <Header profile={profile} contact={contact} />
           <div className="pt-[1px] container p-0 ">
-            <Slider events={event} />
-            <div className="px-[20px] md:px-[50px] lg:px-[100px]">
+            <Slider events={event} profile={profile} />
+            <div id="gallery" className="mt-10">
+              <Gallery gallery={gallery} />
+            </div>
+            <div id="about" className="mt-10 bg-yellow-100 scroll-smooth ">
+              <About profile={profile} />
+            </div>
+
+            {/* ini best seller */}
+            {/* <div className="px-[20px] md:px-[50px] lg:px-[100px]">
               <div className=" py-6">
                 <h4 className="text-center text-sm md:text-lg font-semibold text-yellow-700">
                   Taste the deliciousness and freshness of our best seller menu
@@ -117,13 +125,8 @@ export default function Home({ params }) {
                   })}
                 </div>
               )}
-            </div>
-            <div id="about" className="mt-10 bg-yellow-100 scroll-smooth ">
-              <About profile={profile} />
-            </div>
-            <div id="gallery" className="mt-10">
-              <Gallery gallery={gallery} />
-            </div>
+            </div> */}
+
             <div id="contact" className="mt-10">
               <Contact contact={contact} />
             </div>

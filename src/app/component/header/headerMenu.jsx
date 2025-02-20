@@ -35,17 +35,17 @@ export default function HeaderMenu({ category }) {
   }, [lastScrollY]);
 
   return (
-    <div className=" fixed left-0 mt-11 w-full z-50  shadow-md bg-black text-white ">
+    <div className=" fixed left-0 mt-12 w-full z-50   ">
       {/* Navigation Section */}
       <div className="container ">
-        <div className="flex items-center justify-end text-sm gap-4 px-4 py-1 ">
+        <div className="flex items-center justify-center text-sm gap-4 px-4 py-1  ">
           {/* Navigation Buttons */}
-          <div className="flex gap-6">
+          <div className="flex gap-6 border-2 w-52 justify-center h-8">
             {category.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.type)}
-                className="hover:text-yellow-700 cursor-pointer font-semibold text-white capitalize transition-colors duration-300"
+                className="hover:text-black cursor-pointer font-semibold text-slate-400 capitalize transition-colors duration-300"
               >
                 {item.type}
               </button>
