@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-export default function Header({ category, profile }) {
+export default function HeaderMenu({ category }) {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
 
@@ -35,38 +35,17 @@ export default function Header({ category, profile }) {
   }, [lastScrollY]);
 
   return (
-    <div className=" fixed left-0 w-full z-50  shadow-md bg-white text-white ">
+    <div className=" fixed left-0 mt-12 w-full z-50   ">
       {/* Navigation Section */}
       <div className="container ">
-        <div className="flex items-center justify-between text-sm gap-4 px-4 py-1 ">
-          <div className="flex p-1 w-14 h-10">
-            {/* Ganti placeholder dengan logo jika ada */}
-            {profile.logo ? (
-              <img
-                src={`${process.env.NEXT_PUBLIC_BASE_API_URL}/${profile.logo}`}
-                className="w-full h-full object-contain"
-                alt="Logo"
-              />
-            ) : (
-              <h1 className=" text-xl  text-yellow-700 font-pacifico">
-                {profile.cafe_name ? profile.cafe_name : "MenuCafeKu"}
-              </h1>
-            )}
-          </div>
-
+        <div className="flex items-center justify-center text-sm gap-4 px-4 py-1  ">
           {/* Navigation Buttons */}
-          <div className="flex gap-6">
-            <Link
-              href={`/`}
-              className="font-semibold text-black capitalize py-2 flex hover:text-yellow-700 hover:border-yellow-700 hover:border-b-2"
-            >
-              Home
-            </Link>
+          <div className="flex gap-6 border-2 w-52 justify-center h-8">
             {category.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.type)}
-                className="hover:text-yellow-700 cursor-pointer font-semibold text-black capitalize transition-colors duration-300"
+                className="hover:text-black cursor-pointer font-semibold text-slate-400 capitalize transition-colors duration-300"
               >
                 {item.type}
               </button>
