@@ -24,6 +24,7 @@ export default function Home({ params }) {
   const [rekomendation, setRekomendation] = useState([]);
   const [isError, setIsError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState("");
   const [detail, setDetail] = useState("");
   const searchParams = useSearchParams(); // Mengambil search params dari URL
@@ -49,25 +50,30 @@ export default function Home({ params }) {
   }, [outlet, profile, dispatch]);
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchDrinks = async () => {
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/v1/menu/showall/${process.env.NEXT_PUBLIC_COMPANY_NAME}`
         );
-        setCategory(response.data[0].categories);
+        setCategory(response.data[0].Categories);
         setProfile(response.data[0].profile);
         setOutlet(response.data[0]);
-        setContact(response.data[0].contacts);
+        setContact(response.data[0].Contacts);
       } catch (err) {
         setIsError(true);
         console.log(err);
       }
     };
+    setIsLoading(false);
     fetchDrinks();
   }, []);
 
+  console.log(outlet);
+
   //cari menu rekomendation
   useEffect(() => {
+    setIsLoading(true);
     const fetchRekomendation = async () => {
       try {
         const response = await axios.get(
@@ -75,11 +81,13 @@ export default function Home({ params }) {
         );
 
         const data = response.data;
-        setRekomendation(data[0].categories);
+        setRekomendation(data[0].Categories);
       } catch (err) {
         setIsError(true);
       }
     };
+
+    setIsLoading(false);
     fetchRekomendation();
   }, []);
 
@@ -127,8 +135,6 @@ export default function Home({ params }) {
     }).format(number);
   };
 
-  console.log(pesanan);
-
   return (
     <>
       {isError ? (
@@ -163,106 +169,109 @@ export default function Home({ params }) {
                       OUR MENU BEST SELLER
                     </h2>
                   </div>
-                  {rekomendation.length == 0 ? (
+                  {isLoading ? (
                     <HomeSkeleton />
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3  gap-6">
-                      {rekomendation.map((dr) => {
-                        return (
-                          <div key={dr.id} className="flex justify-center ">
-                            {dr.subcategories.map((item) => (
-                              <div key={item.id}>
-                                {item.menus.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="text-center w-[160px] md:w-[200px] mb-10"
-                                  >
-                                    <div className="">
-                                      <Link
-                                        href={`/menu/?id=${encodeURIComponent(
-                                          item.title
-                                        )}`}
-                                      >
-                                        <img
-                                          src={`${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.photo}`}
-                                          alt=""
-                                          className="w-full h-[140px] md:h-[160px] object-cover"
-                                        />
-                                      </Link>
+                      {rekomendation &&
+                        rekomendation.map((dr) => {
+                          return (
+                            <div key={dr.id} className="flex justify-center ">
+                              {dr.SubCategories.map((item) => (
+                                <div key={item.id}>
+                                  {item.Menus.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      className="text-center w-[160px] md:w-[200px] mb-10"
+                                    >
+                                      <div className="">
+                                        <Link
+                                          href={`/menu/?id=${encodeURIComponent(
+                                            item.title
+                                          )}`}
+                                        >
+                                          <img
+                                            src={`${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.photo}`}
+                                            alt=""
+                                            className="w-full h-[140px] md:h-[160px] object-cover"
+                                          />
+                                        </Link>
+                                      </div>
+                                      <h1 className="text-center capitalize text-slate-700 font-semibold text-xl md:text-2xl mt-5">
+                                        {dr.type}
+                                      </h1>
                                     </div>
-                                    <h1 className="text-center capitalize text-slate-700 font-semibold text-xl md:text-2xl mt-5">
-                                      {dr.type}
-                                    </h1>
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      })}
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })}
                     </div>
                   )}
                 </div>
-                {category.length == 0 ? (
+                {isLoading ? (
                   <MenuSkeleton />
                 ) : (
                   <>
-                    {category.map((item) => {
-                      return (
-                        <div
-                          id={item.type}
-                          key={item.id}
-                          className="px-4 py-8 "
-                        >
-                          <div className=" w-full rounded-lg">
-                            <h1 className="font-bold capitalize text-center text-2xl md:text-4xl text-slate-700">
-                              {item.type}
-                            </h1>
-                            <p className="text-center text-sm md:text-lg text-slate-700 mt-4">
-                              Providing a variety of coffee and non-coffee
-                              drinks, with quality coffee beans. Coffee adds
-                              energy as caffeine stimulates the central nervous
-                              system, fighting fatigue and increasing energy.
-                            </p>
-                            {/* {error && <p className="text-red-500 text-center mt-4">{error}</p>} */}
-                            {item.subcategories.map((item) => (
-                              <div key={item.id}>
-                                <div className="mt-10 gap-8 flex flex-wrap  md:gap-28  ">
-                                  {item.menus.map((item) => {
-                                    const imageUrl = `${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.photo}`;
-                                    const isSelected = pesanan.some(
-                                      (order) => order.id === item.id
-                                    );
+                    {category &&
+                      category.map((item) => {
+                        return (
+                          <div
+                            id={item.type}
+                            key={item.id}
+                            className="px-4 py-8 "
+                          >
+                            <div className=" w-full rounded-lg">
+                              <h1 className="font-bold capitalize text-center text-2xl md:text-4xl text-slate-700">
+                                {item.type}
+                              </h1>
+                              <p className="text-center text-sm md:text-lg text-slate-700 mt-4">
+                                Providing a variety of coffee and non-coffee
+                                drinks, with quality coffee beans. Coffee adds
+                                energy as caffeine stimulates the central
+                                nervous system, fighting fatigue and increasing
+                                energy.
+                              </p>
+                              {/* {error && <p className="text-red-500 text-center mt-4">{error}</p>} */}
+                              {item.SubCategories.map((item) => (
+                                <div key={item.id}>
+                                  <div className="mt-10 gap-8 flex flex-wrap  md:gap-28  ">
+                                    {item.Menus.map((item) => {
+                                      const imageUrl = `${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.photo}`;
+                                      const isSelected = pesanan.some(
+                                        (order) => order.id === item.id
+                                      );
 
-                                    return (
-                                      <div
-                                        key={item.id}
-                                        id={`${item.title}`}
-                                        className="flex min-w-[300px] md:min-w-[200px] md:block overflow-hidden duration-300 "
-                                      >
-                                        <div className="  cursor-pointer w-[100px] md:w-[200px]">
-                                          <img
-                                            src={imageUrl}
-                                            alt={item.title}
-                                            onClick={() =>
-                                              handleImageClick(
-                                                imageUrl,
-                                                item.details
-                                              )
-                                            }
-                                            className="h-[80px] md:h-[160px] w-full object-cover hover:scale-105 transition-transform duration-300"
-                                          />
-                                        </div>
-                                        <div className="w-full md:w-full ">
-                                          <div className=" pl-2 md:flex  justify-between">
-                                            <h1 className="text-sm  font-semibold text-slate-700 capitalize truncate">
-                                              {item.title}
-                                            </h1>
-                                            <p className="text-sm  font-semibold md:block text-slate-700 mt-1">
-                                              {formatToRupiah(item.price)}
-                                            </p>
+                                      return (
+                                        <div
+                                          key={item.id}
+                                          id={`${item.title}`}
+                                          className="flex min-w-[300px] md:min-w-[200px] md:block overflow-hidden duration-300 "
+                                        >
+                                          <div className="  cursor-pointer w-[100px] md:w-[200px]">
+                                            <img
+                                              src={imageUrl}
+                                              alt={item.title}
+                                              onClick={() =>
+                                                handleImageClick(
+                                                  imageUrl,
+                                                  item.details
+                                                )
+                                              }
+                                              className="h-[80px] md:h-[160px] w-full object-cover hover:scale-105 transition-transform duration-300"
+                                            />
                                           </div>
-                                          {/* <div className="flex justify-between items-center mt-8 md:mt-4 px-2 gap-4 text-slate-700">
+                                          <div className="w-full md:w-full ">
+                                            <div className=" pl-2 md:flex  justify-between">
+                                              <h1 className="text-sm  font-semibold text-slate-700 capitalize truncate">
+                                                {item.title}
+                                              </h1>
+                                              <p className="text-sm  font-semibold md:block text-slate-700 mt-1">
+                                                {formatToRupiah(item.price)}
+                                              </p>
+                                            </div>
+                                            {/* <div className="flex justify-between items-center mt-8 md:mt-4 px-2 gap-4 text-slate-700">
                                             <h3 className="hidden md:block text-sm  font-semibold">
                                               Jumlah
                                             </h3>
@@ -277,37 +286,39 @@ export default function Home({ params }) {
                                               </button>
                                             </div>
                                           </div> */}
-                                          <div className="w-full flex justify-end">
-                                            <button
-                                              className={`mt-2 p-1 px-5 text-center text-sm rounded-xl font-semibold transition-colors duration-300 ${
-                                                isSelected
-                                                  ? "border-red-600 border text-red-600 hover:bg-red-600 hover:text-white"
-                                                  : "border-primary50 border text-primary50 hover:bg-primary50 hover:text-white"
-                                              }`}
-                                              onClick={() =>
-                                                dispatch(
-                                                  toggleMenuId({
-                                                    id: item.id,
-                                                    title: item.title,
-                                                    price: item.price,
-                                                  })
-                                                )
-                                              }
-                                            >
-                                              {isSelected ? "Hapus" : "Tambah"}
-                                            </button>
+                                            <div className="w-full flex justify-end">
+                                              <button
+                                                className={`mt-2 p-1 px-5 text-center text-sm rounded-xl font-semibold transition-colors duration-300 ${
+                                                  isSelected
+                                                    ? "border-red-600 border text-red-600 hover:bg-red-600 hover:text-white"
+                                                    : "border-primary50 border text-primary50 hover:bg-primary50 hover:text-white"
+                                                }`}
+                                                onClick={() =>
+                                                  dispatch(
+                                                    toggleMenuId({
+                                                      id: item.id,
+                                                      title: item.title,
+                                                      price: item.price,
+                                                    })
+                                                  )
+                                                }
+                                              >
+                                                {isSelected
+                                                  ? "Hapus"
+                                                  : "Tambah"}
+                                              </button>
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    );
-                                  })}
+                                      );
+                                    })}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </>
                 )}
               </div>

@@ -57,30 +57,31 @@ const Slider = ({ events, profile }) => {
           }}
           className="w-full h-full"
         >
-          {events.map((item) => {
-            return (
-              <SwiperSlide
-                key={item.id}
-                className="w-full h-full text-center text-[18px] bg-black flex justify-center items-center"
-              >
-                <div
-                  className="min-w-full h-[400px] bg-cover bg-center flex items-center justify-center"
-                  style={{
-                    backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.image})`,
-                  }}
+          {events &&
+            events.map((item) => {
+              return (
+                <SwiperSlide
+                  key={item.id}
+                  className="w-full h-full text-center text-[18px] bg-black flex justify-center items-center"
                 >
-                  <div className="text-center text-white p-2 bg-black bg-opacity-50 rounded-lg">
-                    <h2 className="text-2xl  font-bold capitalize mb-1">
-                      {item.title}
-                    </h2>
-                    <p className="max-w-xl mx-auto text-sm md:text-lg">
-                      {item.descriptions}
-                    </p>
+                  <div
+                    className="min-w-full h-[400px] bg-cover bg-center flex items-center justify-center"
+                    style={{
+                      backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.image})`,
+                    }}
+                  >
+                    <div className="text-center text-white p-2 bg-black bg-opacity-50 rounded-lg">
+                      <h2 className="text-2xl  font-bold capitalize mb-1">
+                        {item.title}
+                      </h2>
+                      <p className="max-w-xl mx-auto text-sm md:text-lg">
+                        {item.descriptions}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </SwiperSlide>
-            );
-          })}
+                </SwiperSlide>
+              );
+            })}
         </Swiper>
       </div>
     </div>
