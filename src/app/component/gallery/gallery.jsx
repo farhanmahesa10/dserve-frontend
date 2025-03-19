@@ -29,11 +29,12 @@ export default function Gallery({ gallery }) {
           Gallery
         </h2>
       </div>
-      {gallery.length === 0 ? (
+      {/* {gallery.length === 0 ? (
         <HomeSkeleton />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {gallery.map((dr, index) => {
+      ) : ( */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {gallery &&
+          gallery.map((dr, index) => {
             const chunkIndex = Math.floor(index / 4);
             if (index % 4 === 0) {
               return (
@@ -91,8 +92,8 @@ export default function Gallery({ gallery }) {
             }
             return null;
           })}
-        </div>
-      )}
+      </div>
+      {/* )} */}
 
       {currentIndex !== null && (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-80 z-50">

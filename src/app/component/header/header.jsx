@@ -38,12 +38,12 @@ export default function Header({ profile, contact }) {
                 alt="Logo"
               />
             ) : (
-              <h1 className=" text-xl text-yellow-700 font-pacifico">
+              <h1 className=" text-sm text-yellow-700 font-pacifico">
                 {profile.cafe_name ? profile.cafe_name : "MenuCafeKu"}
               </h1>
             )}
           </div>
-          <div className="flex mr-8 w-40 gap-4 ">
+          <div className="flex  gap-4 ">
             <div className="  cursor-pointer">
               <Link
                 href={`/`}
@@ -67,7 +67,7 @@ export default function Header({ profile, contact }) {
           </div>
 
           {whatsapp ? (
-            <a href={whatsapp.link} target="_blank" className="w-10 h-10">
+            <a href={whatsapp.link} target="_blank" className="w-10 h-10 ">
               <img
                 src={`${process.env.NEXT_PUBLIC_BASE_API_URL}/${whatsapp.logo}`}
                 className="w-full h-full object-contain"
