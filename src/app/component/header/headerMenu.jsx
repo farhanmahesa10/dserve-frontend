@@ -1,10 +1,23 @@
 "use client";
 
+import { fetchCategories } from "@/store/slice";
+import axios from "axios";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-export default function HeaderMenu({ category }) {
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+export default function HeaderMenu() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+
+  const dispatch = useDispatch();
+  const { categories, statusCategories } = useSelector((state) => state.counter);
+
+  useEffect(() => {
+    if (statusCategories === "idle") {
+      dispatch(fetchCategories());
+    }
+  }, [statusCategories, dispatch]);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -36,18 +49,12 @@ export default function HeaderMenu({ category }) {
 
   return (
     <div className=" fixed left-0 mt-12 w-full z-50   ">
-      {/* Navigation Section */}
       <div className="container ">
         <div className="flex items-center justify-center text-sm gap-4 px-4 py-1  ">
-          {/* Navigation Buttons */}
-          <div className="flex gap-6 border-2 px-3 justify-center h-8">
-            {category &&
-              category.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.type)}
-                  className="hover:text-black cursor-pointer font-semibold text-slate-400 capitalize transition-colors duration-300"
-                >
+          <div className="flex gap-6 bg-gray-300  px-3 justify-center h-8">
+            {categories &&
+              categories.map((item) => (
+                <button key={item.id} onClick={() => scrollToSection(item.type)} className="hover:text-black cursor-pointer font-semibold text-slate-400 capitalize transition-colors duration-300">
                   {item.type}
                 </button>
               ))}

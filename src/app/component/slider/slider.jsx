@@ -1,32 +1,35 @@
 "use client";
 
-import React from "react";
-
-// Import Swiper React components
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
-
-// import required modules
 import { Pagination, Autoplay } from "swiper/modules";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { fetchOutlets } from "@/store/slice";
 
-const Slider = ({ events, profile }) => {
-  console.log(profile);
+const Slider = () => {
+  const dispatch = useDispatch();
+  const { outlets, statusOutlets, events, statusEvents, error } = useSelector((state) => state.counter);
 
+  useEffect(() => {
+    if (statusOutlets === "idle") {
+      dispatch(fetchOutlets());
+    }
+  }, [statusOutlets, dispatch]);
+
+  if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  if (statusEvents === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   return (
     <div className="flex justify-between mt-32">
       <div className="w-1/2  p-10">
-        <h1 className="text-2xl capitalize font-semibold mb-5">
-          {profile.cafe_name}
-        </h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt
-          sequi esse veniam adipisci dolores quisquam ullam architecto cum
-          praesentium, quo ipsam quidem dolor libero qui rerum, ducimus
-          cupiditate sed repellat?
-        </p>
+        <h1 className="text-2xl capitalize font-semibold mb-5">{outlets.outlet_name}</h1>
+        {outlets.history ? (
+          outlets.history
+        ) : (
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt sequi esse veniam adipisci dolores quisquam ullam architecto cum praesentium, quo ipsam quidem dolor libero qui rerum, ducimus cupiditate sed repellat?</p>
+        )}
 
         <button href="#" className="border-2 mt-4 w-32 mb-5">
           <p className="m-1">maps to hotel</p>
@@ -60,23 +63,16 @@ const Slider = ({ events, profile }) => {
           {events &&
             events.map((item) => {
               return (
-                <SwiperSlide
-                  key={item.id}
-                  className="w-full h-full text-center text-[18px] bg-black flex justify-center items-center"
-                >
+                <SwiperSlide key={item.id} className="w-full h-full text-center text-[18px] bg-black flex justify-center items-center">
                   <div
                     className="min-w-full h-[400px] bg-cover bg-center flex items-center justify-center"
                     style={{
-                      backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.image})`,
+                      backgroundImage: `url(${process.env.NEXT_PUBLIC_PHOTOS}/${item.image})`,
                     }}
                   >
                     <div className="text-center text-white p-2 bg-black bg-opacity-50 rounded-lg">
-                      <h2 className="text-2xl  font-bold capitalize mb-1">
-                        {item.title}
-                      </h2>
-                      <p className="max-w-xl mx-auto text-sm md:text-lg">
-                        {item.descriptions}
-                      </p>
+                      <h2 className="text-2xl  font-bold capitalize mb-1">{item.title}</h2>
+                      <p className="max-w-xl mx-auto text-sm md:text-lg">{item.descriptions}</p>
                     </div>
                   </div>
                 </SwiperSlide>

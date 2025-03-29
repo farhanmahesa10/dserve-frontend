@@ -1,8 +1,27 @@
 "use client";
 
-import React from "react";
+import { fetchContacts, fetchOutlets } from "@/store/slice";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-export default function Footer({ outlet }) {
+export default function Footer() {
+  const dispatch = useDispatch();
+  const { outlets, contacts, statusContacts, statusOutlets, error } = useSelector((state) => state.counter);
+
+  useEffect(() => {
+    if (statusOutlets === "idle") {
+      dispatch(fetchOutlets());
+    }
+  }, [statusOutlets, dispatch]);
+  useEffect(() => {
+    if (statusContacts === "idle") {
+      dispatch(fetchContacts());
+    }
+  }, [statusOutlets, dispatch]);
+
+  if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   return (
     <footer className="bg-slate-400 pt-10 ">
       <div className="flex flex-wrap container">
@@ -10,7 +29,7 @@ export default function Footer({ outlet }) {
           <div className="w-full">
             <div className="w-full ml-8">
               <h3 className="font-bold text-2xl mb-2 ">History</h3>
-              <p>{outlet.profile ? outlet.profile.history : "-"}</p>
+              <p>{outlets.history ? outlets.history : "lorem ipsum"}</p>
             </div>
           </div>
         </div>
@@ -18,7 +37,7 @@ export default function Footer({ outlet }) {
           <div className="w-full">
             <div className="w-full ml-8 xl:ml-32">
               <h3 className="font-bold text-2xl mb-2 ">Alamat</h3>
-              <p>{outlet.profile ? outlet.profile.address : "-"}</p>
+              <p>{outlets.address ? outlets.address : "lorem ipsum"}</p>
             </div>
           </div>
         </div>
@@ -26,20 +45,11 @@ export default function Footer({ outlet }) {
           <div className="w-full ml-8 xl:ml-32 ">
             <h3 className="font-bold text-2xl mb-2">Media Sosial</h3>
             <div className="flex   w-36 flex-wrap gap-2 mb-2 ">
-              {outlet.contacts &&
-                outlet.contacts.map((item) => {
+              {contacts &&
+                contacts.map((item) => {
                   return (
-                    <a
-                      key={item.id}
-                      href={`${item.link}`}
-                      target="_blank"
-                      className="w-7 h-7 mr-3 rounded-full flex justify-center items-center mb-3"
-                    >
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_BASE_API_URL}/${item.logo}`}
-                        alt={`${item.contact_name}`}
-                        className="w-7 h-7 object-cover"
-                      />
+                    <a key={item.id} href={`${item.link}`} target="_blank" className="w-7 h-7 mr-3 rounded-full flex justify-center items-center mb-3">
+                      <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${item.logo}`} alt={`${item.contact_name}`} className="w-7 h-7 object-cover" />
                     </a>
                   );
                 })}
