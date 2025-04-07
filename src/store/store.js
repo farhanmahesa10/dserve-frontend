@@ -6,6 +6,7 @@ import { persistReducer, persistStore } from "redux-persist";
 const persistConfig = {
   key: "counter",
   storage,
+  version: 2,
 };
 
 const persistedReducer = persistReducer(persistConfig, counterSlice);
