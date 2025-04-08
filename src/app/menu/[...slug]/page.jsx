@@ -2,18 +2,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllMenus, fetchMenusBestSeller, increment } from "@/store/slice";
-import Link from "next/link";
+import { increment } from "@/store/slice";
 import Error from "@/app/component/error/error";
 import Header from "@/app/component/header/header";
 import HeaderMenu from "@/app/component/header/headerMenu";
 import { HomeSkeleton } from "@/app/component/skeleton/homeSkeleton";
 import MenuSkeleton from "@/app/component/skeleton/menuSkeleton";
-import CounterButton from "@/atom/counterButton";
 import CheckoutModal from "@/atom/checkoutModal";
 import Footer from "@/app/component/footer/footer";
 import axios from "axios";
-import { formatToRupiah } from "@/atom/formatRupiah";
+import Card from "@/utils/card";
+import { checkAndFetchAllMenus } from "@/utils/checkAllMenus";
 
 export default function Menu() {
   const params = useParams();
@@ -49,13 +48,8 @@ export default function Menu() {
   }, [params]);
 
   useEffect(() => {
-    if (!allMenus.length) {
-      dispatch(fetchAllMenus());
-    }
-    if (!menus.length) {
-      dispatch(fetchMenusBestSeller());
-    }
-  }, [dispatch, allMenus.length, menus.length]);
+    dispatch(checkAndFetchAllMenus());
+  }, [dispatch]);
 
   useEffect(() => {
     if (id && allMenus.length) {
@@ -100,7 +94,7 @@ export default function Menu() {
         <div className="bg-slate-50 min-h-screen flex flex-col">
           <Header urlCode={urlCode} />
           <HeaderMenu />
-          <div className="container mx-auto px-4 md:px-12 lg:px-20 flex-grow">
+          <div className="container  flex-grow">
             <div id="menu" className="pt-10">
               <div className="mt-5 rounded-md p-6 md:p-10">
                 <div className="text-center">
@@ -110,27 +104,18 @@ export default function Menu() {
                 {statusMenus === "loading" ? (
                   <HomeSkeleton />
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-3  gap-6 justify-items-center mt-6">
+                  <div className="grid grid-cols-1  md:grid-cols-3  gap-6 justify-items-center mt-6">
                     {menus.map((menu, index) => (
-                      <div key={index + 1} className="flex flex-row sm:flex-col items-center gap-4 w-full max-w-[400px] p-3 border border-gray-300 rounded-lg shadow-md">
-                        <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${menu.photo}`} alt={menu.title} className="w-[100px] h-[100px] object-cover rounded-md" />
-                        <div className="flex flex-col justify-between w-full text-center sm:text-left">
-                          <h1 className="capitalize text-slate-700 text-center font-semibold text-lg md:text-xl">{menu.title}</h1>
-                          <p className="text-slate-700 text-center font-medium">{formatToRupiah(menu.price)}</p>
-                          <div className="mt-2">
-                            <CounterButton id_menu={menu.id} onIncrement={() => handleUpdateCart(menu)} />
-                          </div>
-                        </div>
-                      </div>
+                      <Card menu={menu} key={index} onIncrement={() => handleUpdateCart(menu)} />
                     ))}
                   </div>
                 )}
                 {statusAllMenus === "loading" ? (
                   <MenuSkeleton />
                 ) : (
-                  <div className="container mx-auto py-8">
+                  <div>
                     {allMenus.map((menu, index) => (
-                      <div key={menu.id || index} className="py-8 text-center">
+                      <div key={menu.id || index} className="py-8  text-center">
                         <h1 className="font-bold capitalize text-2xl md:text-3xl text-slate-700">{menu.type}</h1>
                         <p className="text-slate-500 mt-2">{menu.descriptions}</p>
 
@@ -138,18 +123,9 @@ export default function Menu() {
                           menu.SubCategories.map((sub, subIndex) => (
                             <div key={sub.id || subIndex} className="mt-6">
                               <h2 className="text-lg font-semibold text-slate-700">{sub.title}</h2>
-                              <div className="mt-4 grid   grid-cols-1 mx-auto sm:grid-cols-2 md:grid-cols-3 gap-4 justify-items-start">
+                              <div className="grid grid-cols-1  md:grid-cols-3  gap-6 justify-items-center mt-6">
                                 {sub.Menus?.map((mn, index) => (
-                                  <div key={index + 2} className="flex flex-row sm:flex-col items-center gap-4 w-full max-w-[400px] p-3 border border-gray-300 rounded-lg shadow-md">
-                                    <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${mn.photo}`} alt={mn.title} className="w-[100px] h-[100px] object-cover rounded-md" />
-                                    <div className="flex flex-col justify-between w-full text-center sm:text-left">
-                                      <h1 className="capitalize text-center text-slate-700 font-semibold text-lg md:text-xl">{mn.title}</h1>
-                                      <p className="text-slate-700 text-center font-medium">{formatToRupiah(mn.price)}</p>
-                                      <div className="mt-2">
-                                        <CounterButton id_mn={mn.id} onIncrement={() => handleUpdateCart(mn)} />
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <Card menu={mn} key={index} onIncrement={() => handleUpdateCart(mn)} />
                                 ))}
                               </div>
                             </div>

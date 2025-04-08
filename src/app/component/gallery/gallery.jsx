@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGalleries } from "@/store/slice";
 import { HomeSkeleton } from "../skeleton/homeSkeleton";
+import { checkAndfetchGalleries } from "@/utils/checkGallery";
 
 export default function Gallery() {
   const [currentIndex, setCurrentIndex] = useState(null);
@@ -11,10 +11,8 @@ export default function Gallery() {
   const { galleries, statusGalleries, error } = useSelector((state) => state.counter);
 
   useEffect(() => {
-    if (statusGalleries === "idle") {
-      dispatch(fetchGalleries());
-    }
-  }, [statusGalleries, dispatch]);
+    dispatch(checkAndfetchGalleries());
+  }, [dispatch]);
 
   if (statusGalleries === "failed") {
     return <p className="text-red-500 text-center">Error: {error}</p>;
@@ -50,7 +48,7 @@ export default function Gallery() {
                         />
                       </div>
                     )}
-                    <div className="flex w-full">
+                    <div className="flex gap-1 w-full">
                       {galleries[index + 2] && (
                         <div className="h-[100px] md:h-[120px] w-1/2">
                           <img

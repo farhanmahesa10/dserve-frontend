@@ -7,17 +7,17 @@ import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { fetchOutlets } from "@/store/slice";
+import { checkAndfetchOutlets } from "@/utils/checkOutlet";
+import { checkAndfetchEvents } from "@/utils/checkEvent";
 
 const Slider = () => {
   const dispatch = useDispatch();
   const { outlets, statusOutlets, events, statusEvents, error } = useSelector((state) => state.counter);
 
   useEffect(() => {
-    if (statusOutlets === "idle") {
-      dispatch(fetchOutlets());
-    }
-  }, [statusOutlets, dispatch]);
+    dispatch(checkAndfetchOutlets());
+    dispatch(checkAndfetchEvents());
+  }, [dispatch]);
 
   if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   if (statusEvents === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
