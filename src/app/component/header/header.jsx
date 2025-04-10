@@ -8,6 +8,7 @@ import { checkAndfetchOutlets } from "@/utils/checkOutlet";
 import { checkAndfetchContacts } from "@/utils/checkContacts";
 import ModalNotification from "@/atom/modalNotifications";
 import { checkAndfetchTransactions } from "@/utils/checkTransactions";
+import { MdOutlineNotifications } from "react-icons/md";
 
 export default function Header({ urlCode }) {
   const pathname = usePathname();
@@ -46,7 +47,7 @@ export default function Header({ urlCode }) {
   return (
     <header className="bg-white shadow z-50 fixed w-full">
       <div className="container mx-auto">
-        <div className="flex justify-between items-center p-2">
+        <div className="flex justify-between items-center p-2 relative">
           <div className="w-16 h-10">
             {outlets?.logo ? (
               <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${encodeURI(outlets.logo)}`} className="w-full h-full object-contain" alt="Logo" />
@@ -57,7 +58,6 @@ export default function Header({ urlCode }) {
 
           <nav className="flex gap-4">
             <Link href={`/${urlCode || ""}`}>
-              {" "}
               <span className={`${url === `/${urlCode || ""}` ? "text-black" : "text-slate-400"} capitalize font-semibold text-xl py-2 hover:text-black`}>Home</span>
             </Link>
             <Link href={`/menu/${urlCode || ""}`}>
@@ -65,17 +65,20 @@ export default function Header({ urlCode }) {
             </Link>
           </nav>
 
-          {tiktok?.link && tiktokLogo ? (
-            <a href={tiktok.link} target="_blank" rel="noopener noreferrer" className="w-10 h-10">
-              <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${tiktokLogo}`} className="w-full h-full object-contain" alt="whatsapp" />
-            </a>
-          ) : (
-            <h1 className="text-xl text-yellow-700 font-pacifico">Contact</h1>
-          )}
-        </div>
-        <div onClick={() => setIsModalOpen(true)} className="cursor-pointer fixed top-2 z-30 right-8 w-10 h-10">
-          <img src="/img/notificasi.png" alt="Notifikasi" />
-          {transactions.length > 0 && <span className="w-5 h-5 bg-red-500 rounded-full absolute text-white text-xs flex items-center justify-center right-0 top-0">{transactions.length}</span>}
+          <div className="flex items-center gap-4 relative">
+            {tiktok?.link && tiktokLogo ? (
+              <a href={tiktok.link} target="_blank" rel="noopener noreferrer" className="w-8 h-8 sm:w-10 sm:h-10">
+                <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${tiktokLogo}`} className="w-full h-full object-contain" alt="whatsapp" />
+              </a>
+            ) : (
+              <h1 className="text-base text-yellow-700 font-pacifico hidden sm:block">Contact</h1>
+            )}
+
+            <div onClick={() => setIsModalOpen(true)} className="relative cursor-pointer w-8 h-8 sm:w-10 sm:h-10">
+              <MdOutlineNotifications className="text-4xl" />
+              {transactions.length > 0 && <span className="w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center absolute -top-1 -right-1">{transactions.length}</span>}
+            </div>
+          </div>
         </div>
 
         {isModalOpen && <ModalNotification onClose={() => setIsModalOpen(false)} />}

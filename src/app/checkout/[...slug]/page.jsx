@@ -21,6 +21,7 @@ export default function Checkout() {
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
+  console.log(data, "cek");
 
   useEffect(() => {
     if (!params?.slug?.length || params.slug.length < 2) {
@@ -76,6 +77,7 @@ export default function Checkout() {
         by_name: byName || "Guest",
         comment: comment || null,
         note: "please pay at the cashier",
+        total_pay: totalPrice,
       });
 
       return response.data;
@@ -87,8 +89,13 @@ export default function Checkout() {
   };
 
   const sendOrder = async (values) => {
-    if (!data?.id) {
-      alert("Enter your ID!");
+    if (!data?.id || !data?.Tables?.[0]?.number_table) {
+      alert("Data table tidak lengkap!");
+      return;
+    }
+
+    if (!pesanan.length) {
+      alert("Keranjang masih kosong!");
       return;
     }
 
@@ -96,30 +103,78 @@ export default function Checkout() {
       setLoading(true);
       const newTransaction = await createTransaction(values.byName, values.comment);
 
-      if (!newTransaction) {
-        alert("Failed to create transaction!");
+      if (!newTransaction?.data?.id) {
+        alert("Gagal membuat transaksi!");
         return;
       }
 
-      socket.emit(
-        "order",
-        {
-          id_outlet: data.id,
+      const payload = {
+        id_outlet: data.id,
+        id_transaction: newTransaction.data.id,
+        orderData: pesanan.map((item) => ({
+          id_menu: item.id_menu,
+          title: item.title,
+          price: item.price,
+          qty: item.qty,
+          total_price: item.qty * item.price,
+        })),
+        dataTransaction: {
           id_transaction: newTransaction.data.id,
-          orderData: pesanan,
+          outlet_name: data.name,
+          by_name: values.byName,
+          number_table: data.Tables?.[0]?.number_table,
+          total_pay: totalPrice,
+          status: "not pay",
         },
-        (serverResponse) => {
-          console.log("Response dari server:", serverResponse);
-          setResult(serverResponse);
-        }
-      );
+      };
+
+      socket.emit("order", payload, (serverResponse) => {
+        console.log("Response dari server:", serverResponse);
+        setResult(serverResponse);
+      });
     } catch (error) {
       console.error("Error while sending order:", error);
-      alert("Something went wrong while sending your order.");
+      alert("Terjadi kesalahan saat mengirim pesanan.");
     } finally {
       setLoading(false);
     }
   };
+
+  // const sendOrder = async (values) => {
+  //   if (!data?.id) {
+  //     alert("Enter your ID!");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+  //     const newTransaction = await createTransaction(values.byName, values.comment);
+
+  //     if (!newTransaction) {
+  //       alert("Failed to create transaction!");
+  //       return;
+  //     }
+
+  //     socket.emit(
+  //       "order",
+  //       {
+  //         id_outlet: data.id,
+  //         id_transaction: newTransaction.data.id,
+  //         orderData: pesanan,
+  //         dataTransaction: id_transaction, outlet_name, by_name, number_table, menu.title , total_price, menu.price, total_pay, status
+  //       },
+  //       (serverResponse) => {
+  //         console.log("Response dari server:", serverResponse);
+  //         setResult(serverResponse);
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.error("Error while sending order:", error);
+  //     alert("Something went wrong while sending your order.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleUpdateCart = (mn) => {
     dispatch(increment({ id_menu: mn.id_menu, title: mn.title, price: mn.price, qty: mn.qty || 1, total_price: mn.price * (mn.qty || 1) }));
   };

@@ -3,7 +3,7 @@ import { formatToRupiah } from "@/atom/formatRupiah";
 
 const Card = ({ menu, onIncrement }) => {
   return (
-    <div className="grid grid-cols-2 gap-2 md:grid-cols-1 md:flex-row bg-white shadow rounded-xl border-2 overflow-hidden w-[300px] sm:w-full max-w-[400px] p-4">
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-1 md:flex-row bg-white shadow rounded-xl border-2 overflow-hidden w-[300px] sm:w-full max-w-[700px] p-2 md:p-4">
       <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${menu.photo}`} alt={menu.title} className="md:w-full w-32 md:h-[200px] h-[100px] object-cover rounded-lg" />
 
       <div className="flex flex-col  justify-between mt-3 md:mt-0 flex-1">
