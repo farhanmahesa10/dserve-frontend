@@ -6,6 +6,7 @@ import { checkAndfetchTransactions } from "@/utils/checkTransactions";
 const ModalNotification = ({ onClose }) => {
   const dispatch = useDispatch();
   const { transactions } = useSelector((state) => state.counter);
+  console.log(transactions, "cek yng satu ini");
 
   useEffect(() => {
     dispatch(checkAndfetchTransactions());
@@ -34,10 +35,11 @@ const ModalNotification = ({ onClose }) => {
         <p className="text-center text-slate-500">Nothing orders yet.</p>
       ) : (
         transactions.map((trx, index) => (
-          <div key={trx.id || index} className="mb-6 border-b pb-4">
+          <div key={trx.id || index} className="mb-6 border-2 p-4">
             <h4 className="text-sm text-slate-500 mb-2">Transaksi #{trx.id}</h4>
             {trx.Orders?.map((order, subIndex) => (
               <div key={order.id || subIndex} className="mb-3">
+                {console.log(trx, "cek")}
                 {order.Menu ? (
                   <div className="flex justify-between items-center text-sm">
                     <div className="text-left">
@@ -53,6 +55,7 @@ const ModalNotification = ({ onClose }) => {
                 )}
               </div>
             ))}
+            <p className="text-sm ">Status: {trx.status}</p>
 
             <div className="flex justify-between items-center border-t pt-2 mt-2">
               <h4 className="text-lg font-bold text-slate-700">Total</h4>

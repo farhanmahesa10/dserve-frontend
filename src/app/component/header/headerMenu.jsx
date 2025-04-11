@@ -51,10 +51,10 @@ export default function HeaderMenu() {
     <div className=" fixed left-0 mt-12 w-full z-40   ">
       <div className="container ">
         <div className="flex items-center justify-center text-sm gap-4 px-4 py-1  ">
-          <div className="flex gap-6 bg-gray-300  px-3 justify-center h-8">
+          <div className="flex gap-6 bg-gray-400  px-3 justify-center h-8">
             {categories &&
               categories.map((item) => (
-                <button key={item.id} onClick={() => scrollToSection(item.type)} className="hover:text-black cursor-pointer font-semibold text-slate-400 capitalize transition-colors duration-300">
+                <button key={item.id} onClick={() => scrollToSection(item.type)} className="hover:text-black cursor-pointer font-semibold text-slate-900 capitalize transition-colors duration-300">
                   {item.type}
                 </button>
               ))}

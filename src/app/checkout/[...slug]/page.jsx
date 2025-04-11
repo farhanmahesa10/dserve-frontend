@@ -21,7 +21,6 @@ export default function Checkout() {
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
-  console.log(data, "cek");
 
   useEffect(() => {
     if (!params?.slug?.length || params.slug.length < 2) {
@@ -110,7 +109,11 @@ export default function Checkout() {
 
       const payload = {
         id_outlet: data.id,
+        outlet_name: data.outlet_name,
+        by_name: values.byName,
         id_transaction: newTransaction.data.id,
+        total_pay: totalPrice,
+        status: "not pay",
         orderData: pesanan.map((item) => ({
           id_menu: item.id_menu,
           title: item.title,
@@ -118,14 +121,6 @@ export default function Checkout() {
           qty: item.qty,
           total_price: item.qty * item.price,
         })),
-        dataTransaction: {
-          id_transaction: newTransaction.data.id,
-          outlet_name: data.name,
-          by_name: values.byName,
-          number_table: data.Tables?.[0]?.number_table,
-          total_pay: totalPrice,
-          status: "not pay",
-        },
       };
 
       socket.emit("order", payload, (serverResponse) => {
@@ -215,7 +210,7 @@ export default function Checkout() {
         Back To Menu
       </Link>
 
-      {result?.data?.length > 0 && (
+      {result && result.success && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h2 className="text-xl font-bold">{result.message}!</h2>
