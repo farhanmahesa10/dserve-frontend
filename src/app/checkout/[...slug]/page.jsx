@@ -134,7 +134,18 @@ export default function Checkout() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    // Listener saat socket menerima data
+    socket.on("newOrder", (data) => {
+      console.log("newOrder:", data);
+      // dispatch ke Redux jika perlu
+    });
 
+    // Cleanup listener saat komponen unmount
+    return () => {
+      socket.off("newOrder");
+    };
+  }, []);
   // const sendOrder = async (values) => {
   //   if (!data?.id) {
   //     alert("Enter your ID!");

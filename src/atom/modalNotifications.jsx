@@ -6,7 +6,6 @@ import { checkAndfetchTransactions } from "@/utils/checkTransactions";
 const ModalNotification = ({ onClose }) => {
   const dispatch = useDispatch();
   const { transactions } = useSelector((state) => state.counter);
-  console.log(transactions, "cek yng satu ini");
 
   useEffect(() => {
     dispatch(checkAndfetchTransactions());
@@ -55,7 +54,8 @@ const ModalNotification = ({ onClose }) => {
                 )}
               </div>
             ))}
-            <p className="text-sm ">Status: {trx.status}</p>
+            <p className="text-sm  my-3">Status: {trx.status}</p>
+            <p className="text-sm ">By Name: {trx.by_name}</p>
 
             <div className="flex justify-between items-center border-t pt-2 mt-2">
               <h4 className="text-lg font-bold text-slate-700">Total</h4>
