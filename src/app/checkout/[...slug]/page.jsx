@@ -109,6 +109,7 @@ export default function Checkout() {
 
       const payload = {
         id_outlet: data.id,
+        number_table: data.Tables[0].number_table,
         outlet_name: data.outlet_name,
         by_name: values.byName,
         id_transaction: newTransaction.data.id,
@@ -135,13 +136,10 @@ export default function Checkout() {
     }
   };
   useEffect(() => {
-    // Listener saat socket menerima data
     socket.on("newOrder", (data) => {
       console.log("newOrder:", data);
-      // dispatch ke Redux jika perlu
     });
 
-    // Cleanup listener saat komponen unmount
     return () => {
       socket.off("newOrder");
     };
