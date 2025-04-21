@@ -17,13 +17,13 @@ export default function About() {
   return (
     <div className=" gap-4 grid px-[10px] sm:px-[30px] md:px-[50px]">
       <h4 className=" text-center text-2xl md:text-4xl my-5 font-semibold font-display">About Me</h4>
-      <p>
+      <div>
         {outlets.history ? (
           outlets.history
         ) : (
           <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt sequi esse veniam adipisci dolores quisquam ullam architecto cum praesentium, quo ipsam quidem dolor libero qui rerum, ducimus cupiditate sed repellat?</p>
         )}
-      </p>
+      </div>
     </div>
   );
 }

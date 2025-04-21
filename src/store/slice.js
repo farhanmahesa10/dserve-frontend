@@ -29,12 +29,20 @@ const initialState = {
   statusPesanan: "idle",
   error: null,
 };
+
 export const fetchOutlets = createAsyncThunk("counter/fetchOutlets", async () => {
   const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/outlet/showbyoutletcode/OUT5759`);
   return response.data.data;
 });
 export const fetchTransactions = createAsyncThunk("counter/fetchTransactions", async () => {
   const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/shownotpay/OUT5759`);
+  return response.data.data;
+});
+export const updateTransactions = createAsyncThunk("counter/updateTransactions", async ({ id, status }, { dispatch }) => {
+  const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${id}`, {
+    status,
+  });
+  dispatch(fetchTransactions());
   return response.data.data;
 });
 export const fetchEvents = createAsyncThunk("counter/fetchEvents", async () => {

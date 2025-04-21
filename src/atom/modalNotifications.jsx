@@ -1,11 +1,22 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { formatToRupiah } from "./formatRupiah";
 import { checkAndfetchTransactions } from "@/utils/checkTransactions";
+import { updateTransactions } from "@/store/slice";
 
 const ModalNotification = ({ onClose }) => {
   const dispatch = useDispatch();
   const { transactions } = useSelector((state) => state.counter);
+
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     dispatch(checkAndfetchTransactions());
@@ -26,7 +37,7 @@ const ModalNotification = ({ onClose }) => {
       <div className="flex justify-between items-center border-b pb-3 mb-4">
         <h3 className="text-lg font-bold text-slate-700">Orders Not Pay Yet</h3>
         <button onClick={onClose} className="text-red-500 font-medium">
-          Tutup
+          Close
         </button>
       </div>
 
@@ -38,7 +49,6 @@ const ModalNotification = ({ onClose }) => {
             <h4 className="text-sm text-slate-500 mb-2">Transaksi #{trx.id}</h4>
             {trx.Orders?.map((order, subIndex) => (
               <div key={order.id || subIndex} className="mb-3">
-                {console.log(trx, "cek")}
                 {order.Menu ? (
                   <div className="flex justify-between items-center text-sm">
                     <div className="text-left">
@@ -54,8 +64,15 @@ const ModalNotification = ({ onClose }) => {
                 )}
               </div>
             ))}
-            <p className="text-sm  my-3">Status: {trx.status}</p>
+            <p className="text-sm  my-3">
+              Status: <span className="bg-red-500 p-1 rounded text-white capitalize"> {trx.status}</span>
+            </p>
             <p className="text-sm ">By Name: {trx.by_name}</p>
+            {Date.now() - new Date(trx.createdAt).getTime() < 60000 && trx.status !== "failed" && (
+              <button onClick={() => dispatch(updateTransactions({ id: trx.id, status: "failed" }))} className="mt-2 px-4 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+                Cancel
+              </button>
+            )}
 
             <div className="flex justify-between items-center border-t pt-2 mt-2">
               <h4 className="text-lg font-bold text-slate-700">Total</h4>

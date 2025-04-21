@@ -8,8 +8,7 @@ import { checkAndfetchOutlets } from "@/utils/checkOutlet";
 import { checkAndfetchContacts } from "@/utils/checkContacts";
 import ModalNotification from "@/atom/modalNotifications";
 import { checkAndfetchTransactions } from "@/utils/checkTransactions";
-import { MdOutlineNotifications } from "react-icons/md";
-
+import { GrTransaction } from "react-icons/gr";
 export default function Header({ urlCode }) {
   const pathname = usePathname();
   const [url, setUrl] = useState("");
@@ -43,6 +42,17 @@ export default function Header({ urlCode }) {
 
   if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isModalOpen]);
 
   return (
     <header className="bg-white shadow z-50 fixed w-full">
@@ -75,7 +85,7 @@ export default function Header({ urlCode }) {
             )}
 
             <div onClick={() => setIsModalOpen(true)} className="relative cursor-pointer w-8 h-8 sm:w-10 sm:h-10">
-              <MdOutlineNotifications className="text-4xl" />
+              <GrTransaction className="text-4xl" />
               {transactions.length > 0 && <span className="w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center absolute -top-1 -right-1">{transactions.length}</span>}
             </div>
           </div>
