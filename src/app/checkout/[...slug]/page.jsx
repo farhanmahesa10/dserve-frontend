@@ -10,17 +10,20 @@ import { formatToRupiah } from "@/atom/formatRupiah";
 import socket from "@/lib/socket";
 import CheckoutForm from "@/utils/checkoutForm";
 import CounterButton from "@/atom/counterButton";
+import CancelButton from "@/utils/cancelCountdown";
 
 export default function Checkout() {
   const [result, setResult] = useState(null);
-  const params = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [urlCode, setUrlCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [transaction, setTransaction] = useState(null);
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
+
+  const params = useParams();
 
   useEffect(() => {
     if (!params?.slug?.length || params.slug.length < 2) {
@@ -48,16 +51,14 @@ export default function Checkout() {
 
   useEffect(() => {
     if (!data?.id) return;
-
     socket.emit("joinCafe", data.id);
-    console.log(`Bergabung ke cafe_${data.id}`);
-
-    return () => {
-      socket.off("joinCafe");
-    };
+    return () => socket.off("joinCafe");
   }, [data?.id]);
 
-  if (error) return <Error />;
+  useEffect(() => {
+    socket.on("newOrder", (data) => console.log("newOrder:", data));
+    return () => socket.off("newOrder");
+  }, []);
 
   const totalPrice = pesanan.reduce((acc, item) => acc + item.price * item.qty, 0);
 
@@ -101,11 +102,11 @@ export default function Checkout() {
     try {
       setLoading(true);
       const newTransaction = await createTransaction(values.byName, values.comment);
-
       if (!newTransaction?.data?.id) {
         alert("Gagal membuat transaksi!");
         return;
       }
+      setTransaction(newTransaction.data);
 
       const payload = {
         id_outlet: data.id,
@@ -114,7 +115,7 @@ export default function Checkout() {
         by_name: values.byName,
         id_transaction: newTransaction.data.id,
         total_pay: totalPrice,
-        status: "not pay",
+        status: "active",
         orderData: pesanan.map((item) => ({
           id_menu: item.id_menu,
           title: item.title,
@@ -135,53 +136,21 @@ export default function Checkout() {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    socket.on("newOrder", (data) => {
-      console.log("newOrder:", data);
-    });
 
-    return () => {
-      socket.off("newOrder");
-    };
-  }, []);
-  // const sendOrder = async (values) => {
-  //   if (!data?.id) {
-  //     alert("Enter your ID!");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     const newTransaction = await createTransaction(values.byName, values.comment);
-
-  //     if (!newTransaction) {
-  //       alert("Failed to create transaction!");
-  //       return;
-  //     }
-
-  //     socket.emit(
-  //       "order",
-  //       {
-  //         id_outlet: data.id,
-  //         id_transaction: newTransaction.data.id,
-  //         orderData: pesanan,
-  //         dataTransaction: id_transaction, outlet_name, by_name, number_table, menu.title , total_price, menu.price, total_pay, status
-  //       },
-  //       (serverResponse) => {
-  //         console.log("Response dari server:", serverResponse);
-  //         setResult(serverResponse);
-  //       }
-  //     );
-  //   } catch (error) {
-  //     console.error("Error while sending order:", error);
-  //     alert("Something went wrong while sending your order.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleUpdateCart = (mn) => {
-    dispatch(increment({ id_menu: mn.id_menu, title: mn.title, price: mn.price, qty: mn.qty || 1, total_price: mn.price * (mn.qty || 1) }));
+    dispatch(
+      increment({
+        id_menu: mn.id_menu,
+        title: mn.title,
+        price: mn.price,
+        qty: mn.qty || 1,
+        total_price: mn.price * (mn.qty || 1),
+      })
+    );
   };
+
+  if (error) return <Error />;
+  console.log(transaction, "cek data");
 
   return (
     <div className="container mx-auto px-4 md:px-12 lg:px-20 min-h-screen flex flex-col">
@@ -219,21 +188,25 @@ export default function Checkout() {
         Back To Menu
       </Link>
 
-      {result && result.success && (
+      {result?.success && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h2 className="text-xl font-bold">{result.message}!</h2>
             <p className="mt-2 text-gray-600">Please pay at cashier.</p>
-            <Link href={`/menu/${urlCode}`}>
-              <button
-                onClick={() => {
-                  setResult(null), dispatch(resetPesanan());
-                }}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                OK
-              </button>
-            </Link>
+            <div className="flex gap-2 justify-center">
+              <Link href={`/menu/${urlCode}`}>
+                <button
+                  onClick={() => {
+                    setResult(null);
+                    dispatch(resetPesanan());
+                  }}
+                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  OK
+                </button>
+              </Link>
+              {transaction?.id && transaction?.createdAt && transaction?.status === "active" && <CancelButton transactionId={transaction.id} createdAt={transaction.createdAt} status={transaction.status} />}
+            </div>
           </div>
         </div>
       )}

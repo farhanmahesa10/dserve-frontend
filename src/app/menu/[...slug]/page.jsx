@@ -115,7 +115,7 @@ export default function Menu() {
                 ) : (
                   <div>
                     {allMenus.map((menu, index) => (
-                      <div key={menu.id || index} className="py-8  text-center">
+                      <div key={menu.id || index} id={menu.type} className="py-8  text-center">
                         <h1 className="font-bold capitalize text-2xl md:text-3xl text-slate-700">{menu.type}</h1>
                         <p className="text-slate-500 mt-2">{menu.descriptions}</p>
 
