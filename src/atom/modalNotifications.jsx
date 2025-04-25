@@ -3,10 +3,23 @@ import { useEffect, useState } from "react";
 import { formatToRupiah } from "./formatRupiah";
 import { checkAndfetchTransactions } from "@/utils/checkTransactions";
 import CancelButton from "@/utils/cancelCountdown";
+import { useParams } from "next/navigation";
 
 const ModalNotification = ({ onClose }) => {
+  const params = useParams();
   const dispatch = useDispatch();
+  const [urlCode, setUrlCode] = useState();
   const { transactions } = useSelector((state) => state.counter);
+  useEffect(() => {
+    if (!params?.slug?.length || params.slug.length < 2) {
+      console.log(error);
+      true;
+      return;
+    }
+
+    const lastTwoSegments = params.slug.slice(-2).join("/");
+    setUrlCode(lastTwoSegments);
+  }, []);
 
   useEffect(() => {
     dispatch(checkAndfetchTransactions());
@@ -66,7 +79,7 @@ const ModalNotification = ({ onClose }) => {
                 <span className="text-xl font-semibold text-blue-600">{formatToRupiah(getTotalHarga(trx.Orders))}</span>
               </div>
 
-              <CancelButton transactionId={trx.id} createdAt={trx.createdAt} status={trx.status} />
+              <CancelButton redirect={urlCode} transactionId={trx.id} createdAt={trx.createdAt} status={trx.status} />
             </div>
           );
         })

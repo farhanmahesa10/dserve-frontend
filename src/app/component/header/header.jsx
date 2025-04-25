@@ -9,19 +9,22 @@ import { checkAndfetchContacts } from "@/utils/checkContacts";
 import ModalNotification from "@/atom/modalNotifications";
 import { checkAndfetchTransactions } from "@/utils/checkTransactions";
 import { GrTransaction } from "react-icons/gr";
+import { closeModal, openModal } from "@/store/slice";
+import { toast } from "react-toastify";
 export default function Header({ urlCode }) {
   const pathname = usePathname();
   const [url, setUrl] = useState("");
   const [tiktok, setTiktok] = useState(null);
   const [tiktokLogo, setTiktokLogo] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const isModalOpen = useSelector((state) => state.counter.isModalOpen);
 
   useEffect(() => {
     setUrl(pathname);
   }, [pathname]);
 
   const dispatch = useDispatch();
-  const { outlets, transactions, statusOutlets, contacts, statusContacts, error } = useSelector((state) => state.counter);
+  const { outlets, transactions, statusOutlets, contacts, isModalOpen, statusContacts, error } = useSelector((state) => state.counter);
 
   useEffect(() => {
     dispatch(checkAndfetchOutlets());
@@ -68,10 +71,10 @@ export default function Header({ urlCode }) {
 
           <nav className="flex gap-4">
             <Link href={`/${urlCode || ""}`}>
-              <span className={`${url === `/${urlCode || ""}` ? "text-black" : "text-slate-400"} capitalize font-semibold text-xl py-2 hover:text-black`}>Home</span>
+              <span className={`${url === `/${urlCode || ""}` ? "text-black" : "text-slate-400"} capitalize font-semibold py-2 hover:text-black`}>Home</span>
             </Link>
             <Link href={`/menu/${urlCode || ""}`}>
-              <span className={`${url === `/menu/${urlCode || ""}` ? "text-black" : "text-slate-400"} capitalize font-semibold text-xl py-2 hover:text-black`}>Menu</span>
+              <span className={`${url === `/menu/${urlCode || ""}` ? "text-black" : "text-slate-400"} capitalize font-semibold py-2 hover:text-black`}>Menu</span>
             </Link>
           </nav>
 
@@ -84,14 +87,14 @@ export default function Header({ urlCode }) {
               <h1 className="text-base text-yellow-700 font-pacifico hidden sm:block">Contact</h1>
             )}
 
-            <div onClick={() => setIsModalOpen(true)} className="relative cursor-pointer w-8 h-8 sm:w-10 sm:h-10">
+            <div onClick={() => dispatch(openModal())} className="relative cursor-pointer w-8 h-8 sm:w-10 sm:h-10">
               <GrTransaction className="text-4xl" />
               {transactions.length > 0 && <span className="w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center absolute -top-1 -right-1">{transactions.length}</span>}
             </div>
           </div>
         </div>
 
-        {isModalOpen && <ModalNotification onClose={() => setIsModalOpen(false)} />}
+        {isModalOpen && <ModalNotification onClose={() => dispatch(closeModal())} />}
       </div>
     </header>
   );

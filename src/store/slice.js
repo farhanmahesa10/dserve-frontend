@@ -28,6 +28,7 @@ const initialState = {
   statusMenus: "idle",
   statusPesanan: "idle",
   error: null,
+  isModalOpen: false,
 };
 
 export const fetchOutlets = createAsyncThunk("counter/fetchOutlets", async () => {
@@ -75,6 +76,12 @@ export const counterSlice = createSlice({
   name: "counter",
   initialState,
   reducers: {
+    openModal: (state) => {
+      state.isModalOpen = true;
+    },
+    closeModal: (state) => {
+      state.isModalOpen = false;
+    },
     setMenusUpdatedAt: (state, action) => {
       state.menusUpdatedAt = action.payload;
     },
@@ -247,7 +254,21 @@ export const counterSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, toggleMenuId, addOutlet, resetPesanan, removeItem, setMenusUpdatedAt, setContactsUpdatedAt, setEventsUpdatedAt, setGalleriesUpdatedAt, setOutletsUpdatedAt, setTransactionsUpdatedAt } =
-  counterSlice.actions;
+export const {
+  openModal,
+  closeModal,
+  increment,
+  decrement,
+  toggleMenuId,
+  addOutlet,
+  resetPesanan,
+  removeItem,
+  setMenusUpdatedAt,
+  setContactsUpdatedAt,
+  setEventsUpdatedAt,
+  setGalleriesUpdatedAt,
+  setOutletsUpdatedAt,
+  setTransactionsUpdatedAt,
+} = counterSlice.actions;
 
 export default counterSlice.reducer;

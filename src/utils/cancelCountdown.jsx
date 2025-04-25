@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateTransactions } from "@/store/slice";
+import { closeModal, resetPesanan, updateTransactions } from "@/store/slice";
+import { toast } from "react-toastify";
+import Link from "next/link";
 
-const CancelButton = ({ transactionId, createdAt, status }) => {
+const CancelButton = ({ transactionId, createdAt, status, redirect }) => {
   const dispatch = useDispatch();
   const [secondsLeft, setSecondsLeft] = useState(60);
 
@@ -17,6 +19,9 @@ const CancelButton = ({ transactionId, createdAt, status }) => {
 
   const handleCancel = () => {
     dispatch(updateTransactions({ id: transactionId, status: "failed" }));
+    dispatch(resetPesanan());
+    dispatch(closeModal());
+    toast.success("Successfully to cancel order");
   };
 
   const isCancelable = Date.now() - new Date(createdAt).getTime() < 60000 && status !== "failed";
@@ -24,9 +29,13 @@ const CancelButton = ({ transactionId, createdAt, status }) => {
   if (!isCancelable) return null;
 
   return (
-    <button onClick={handleCancel} className={`${secondsLeft === 0 ? "hidden" : ""} mt-4 w-full py-2 text-center border-4 border-black rounded text-black text-base font-semibold`}>
-      Cancel ( {secondsLeft} )
-    </button>
+    <>
+      <Link href={`/menu/${redirect}`}>
+        <button onClick={handleCancel} className={`${secondsLeft === 0 ? "hidden" : ""} mt-4 w-full p-2 text-center border-2  rounded text-white bg-red-500 text-base font-semibold`}>
+          Cancel ( {secondsLeft} )
+        </button>
+      </Link>
+    </>
   );
 };
 

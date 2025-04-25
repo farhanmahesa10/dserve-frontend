@@ -99,7 +99,7 @@ export default function Menu() {
               <div className="mt-5 rounded-md p-6 md:p-10">
                 <div className="text-center">
                   <h4 className="text-sm md:text-lg font-semibold text-slate-700">Taste the deliciousness and freshness of our best seller menu!</h4>
-                  <h2 className="text-slate-700 mt-4 font-bold text-2xl md:text-4xl">OUR MENU BEST SELLER</h2>
+                  <h2 className="text-slate-700 mt-4 font-bold text-xl md:text-4xl">OUR MENU BEST SELLER</h2>
                 </div>
                 {statusMenus === "loading" ? (
                   <HomeSkeleton />

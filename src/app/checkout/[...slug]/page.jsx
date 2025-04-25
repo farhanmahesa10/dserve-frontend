@@ -5,12 +5,13 @@ import axios from "axios";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import Error from "@/app/component/error/error";
-import { increment, removeItem, resetPesanan } from "@/store/slice";
+import { increment, openModal, removeItem, resetPesanan } from "@/store/slice";
 import { formatToRupiah } from "@/atom/formatRupiah";
 import socket from "@/lib/socket";
 import CheckoutForm from "@/utils/checkoutForm";
 import CounterButton from "@/atom/counterButton";
 import CancelButton from "@/utils/cancelCountdown";
+import { toast } from "react-toastify";
 
 export default function Checkout() {
   const [result, setResult] = useState(null);
@@ -72,7 +73,7 @@ export default function Checkout() {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/create`, {
         id_outlet: data.id,
         id_table: data.Tables[0].id,
-        status: "not pay",
+        status: "active",
         pays_method: "cash",
         by_name: byName || "Guest",
         comment: comment || null,
@@ -150,7 +151,6 @@ export default function Checkout() {
   };
 
   if (error) return <Error />;
-  console.log(transaction, "cek data");
 
   return (
     <div className="container mx-auto px-4 md:px-12 lg:px-20 min-h-screen flex flex-col">
@@ -199,13 +199,14 @@ export default function Checkout() {
                   onClick={() => {
                     setResult(null);
                     dispatch(resetPesanan());
+                    dispatch(openModal());
                   }}
                   className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
                 >
                   OK
                 </button>
               </Link>
-              {transaction?.id && transaction?.createdAt && transaction?.status === "active" && <CancelButton transactionId={transaction.id} createdAt={transaction.createdAt} status={transaction.status} />}
+              {transaction?.id && transaction?.createdAt && transaction?.status === "active" && <CancelButton redirect={urlCode} transactionId={transaction.id} createdAt={transaction.createdAt} status={transaction.status} />}
             </div>
           </div>
         </div>
