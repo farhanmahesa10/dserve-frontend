@@ -6,12 +6,20 @@ const initialState = {
   outlets: [{ id: "", outlet_name: "", logo: "", history: "", address: "", outlet_code: "" }],
   pesanan: [],
   events: [],
+  transactions: [],
   contacts: [],
   galleries: [],
   menus: [],
   categories: [],
   allMenus: [],
+  menusUpdatedAt: null,
+  transactionsUpdatedAt: null,
+  contactsUpdatedAt: null,
+  eventsUpdatedAt: null,
+  galleriesUpdatedAt: null,
+  outletsUpdatedAt: null,
   statusOutlets: "idle",
+  statusTransactions: "idle",
   statusCategories: "idle",
   statusAllMenus: "idle",
   statusContacts: "idle",
@@ -20,9 +28,22 @@ const initialState = {
   statusMenus: "idle",
   statusPesanan: "idle",
   error: null,
+  isModalOpen: false,
 };
+
 export const fetchOutlets = createAsyncThunk("counter/fetchOutlets", async () => {
   const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/outlet/showbyoutletcode/OUT5759`);
+  return response.data.data;
+});
+export const fetchTransactions = createAsyncThunk("counter/fetchTransactions", async () => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/shownotpay/OUT5759`);
+  return response.data.data;
+});
+export const updateTransactions = createAsyncThunk("counter/updateTransactions", async ({ id, status }, { dispatch }) => {
+  const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${id}`, {
+    status,
+  });
+  dispatch(fetchTransactions());
   return response.data.data;
 });
 export const fetchEvents = createAsyncThunk("counter/fetchEvents", async () => {
@@ -55,6 +76,30 @@ export const counterSlice = createSlice({
   name: "counter",
   initialState,
   reducers: {
+    openModal: (state) => {
+      state.isModalOpen = true;
+    },
+    closeModal: (state) => {
+      state.isModalOpen = false;
+    },
+    setMenusUpdatedAt: (state, action) => {
+      state.menusUpdatedAt = action.payload;
+    },
+    setTransactionsUpdatedAt: (state, action) => {
+      state.transactionsUpdatedAt = action.payload;
+    },
+    setContactsUpdatedAt: (state, action) => {
+      state.contactsUpdatedAt = action.payload;
+    },
+    setEventsUpdatedAt: (state, action) => {
+      state.eventsUpdatedAt = action.payload;
+    },
+    setGalleriesUpdatedAt: (state, action) => {
+      state.galleriesUpdatedAt = action.payload;
+    },
+    setOutletsUpdatedAt: (state, action) => {
+      state.outletsUpdatedAt = action.payload;
+    },
     increment: (state, action) => {
       if (!action.payload.id_menu || !action.payload.title || !action.payload.price) {
         console.warn("Data yang dikirim tidak lengkap:", action.payload);
@@ -74,7 +119,6 @@ export const counterSlice = createSlice({
         });
       }
     },
-
     decrement: (state, action) => {
       const { id_menu } = action.payload;
       const item = state.pesanan.find((p) => p.id_menu === id_menu);
@@ -151,6 +195,17 @@ export const counterSlice = createSlice({
         state.statusEvents = "failed";
         state.error = action.error.message;
       })
+      .addCase(fetchTransactions.pending, (state) => {
+        state.statusTransactions = "loading";
+      })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.statusTransactions = "succeeded";
+        state.transactions = action.payload;
+      })
+      .addCase(fetchTransactions.rejected, (state, action) => {
+        state.statusTransactions = "failed";
+        state.error = action.error.message;
+      })
       .addCase(fetchGalleries.pending, (state) => {
         state.statusGalleries = "loading";
       })
@@ -199,6 +254,21 @@ export const counterSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, toggleMenuId, addOutlet, resetPesanan, removeItem } = counterSlice.actions;
+export const {
+  openModal,
+  closeModal,
+  increment,
+  decrement,
+  toggleMenuId,
+  addOutlet,
+  resetPesanan,
+  removeItem,
+  setMenusUpdatedAt,
+  setContactsUpdatedAt,
+  setEventsUpdatedAt,
+  setGalleriesUpdatedAt,
+  setOutletsUpdatedAt,
+  setTransactionsUpdatedAt,
+} = counterSlice.actions;
 
 export default counterSlice.reducer;

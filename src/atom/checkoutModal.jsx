@@ -15,9 +15,9 @@ const CheckoutModal = ({ onClose, urlCode }) => {
   const totalPrice = pesanan.reduce((acc, item) => acc + item.price * item.qty, 0);
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4">
+    <div className="fixed text-base sm:text-lg bottom-0 left-0 w-full bg-white shadow-md p-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold">Orders</h3>
+        <h3 className=" sm:text-lg font-bold">Orders</h3>
         <button onClick={onClose} className="text-red-500">
           Close
         </button>

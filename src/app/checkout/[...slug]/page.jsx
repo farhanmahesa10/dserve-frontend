@@ -5,27 +5,26 @@ import axios from "axios";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import Error from "@/app/component/error/error";
-import { removeItem, resetPesanan } from "@/store/slice";
-import { io } from "socket.io-client";
+import { increment, openModal, removeItem, resetPesanan } from "@/store/slice";
 import { formatToRupiah } from "@/atom/formatRupiah";
-
-const socket = io("http://localhost:3000", {
-  transports: ["websocket", "polling"],
-  withCredentials: true,
-});
+import socket from "@/lib/socket";
+import CheckoutForm from "@/utils/checkoutForm";
+import CounterButton from "@/atom/counterButton";
+import CancelButton from "@/utils/cancelCountdown";
+import { toast } from "react-toastify";
 
 export default function Checkout() {
-  const [comment, setComment] = useState("");
   const [result, setResult] = useState(null);
-  const [byName, setByName] = useState("");
-  const params = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [urlCode, setUrlCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [transaction, setTransaction] = useState(null);
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
+
+  const params = useParams();
 
   useEffect(() => {
     if (!params?.slug?.length || params.slug.length < 2) {
@@ -53,20 +52,18 @@ export default function Checkout() {
 
   useEffect(() => {
     if (!data?.id) return;
-
     socket.emit("joinCafe", data.id);
-    console.log(`Bergabung ke cafe_${data.id}`);
-
-    return () => {
-      socket.off("joinCafe");
-    };
+    return () => socket.off("joinCafe");
   }, [data?.id]);
 
-  if (error) return <Error />;
+  useEffect(() => {
+    socket.on("newOrder", (data) => console.log("newOrder:", data));
+    return () => socket.off("newOrder");
+  }, []);
 
   const totalPrice = pesanan.reduce((acc, item) => acc + item.price * item.qty, 0);
 
-  const createTransaction = async () => {
+  const createTransaction = async (byName, comment) => {
     try {
       if (!data?.Tables?.[0]?.id) {
         alert("Table data is missing!");
@@ -76,11 +73,12 @@ export default function Checkout() {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/create`, {
         id_outlet: data.id,
         id_table: data.Tables[0].id,
-        status: "not pay",
+        status: "active",
         pays_method: "cash",
-        by_name: byName.trim() || "Guest",
-        comment: comment.trim() || null,
+        by_name: byName || "Guest",
+        comment: comment || null,
         note: "please pay at the cashier",
+        total_pay: totalPrice,
       });
 
       return response.data;
@@ -91,35 +89,68 @@ export default function Checkout() {
     }
   };
 
-  const sendOrder = async () => {
-    if (!data?.id) {
-      alert("Enter your ID!");
+  const sendOrder = async (values) => {
+    if (!data?.id || !data?.Tables?.[0]?.number_table) {
+      alert("Data table tidak lengkap!");
       return;
     }
 
-    setLoading(true);
-    const newTransaction = await createTransaction();
-
-    if (!newTransaction) {
-      alert("Failed to create transaction!");
-      setLoading(false);
+    if (!pesanan.length) {
+      alert("Keranjang masih kosong!");
       return;
     }
 
-    socket.emit(
-      "order",
-      {
+    try {
+      setLoading(true);
+      const newTransaction = await createTransaction(values.byName, values.comment);
+      if (!newTransaction?.data?.id) {
+        alert("Gagal membuat transaksi!");
+        return;
+      }
+      setTransaction(newTransaction.data);
+
+      const payload = {
         id_outlet: data.id,
+        number_table: data.Tables[0].number_table,
+        outlet_name: data.outlet_name,
+        by_name: values.byName,
         id_transaction: newTransaction.data.id,
-        orderData: pesanan,
-      },
-      (serverResponse) => {
+        total_pay: totalPrice,
+        status: "active",
+        orderData: pesanan.map((item) => ({
+          id_menu: item.id_menu,
+          title: item.title,
+          price: item.price,
+          qty: item.qty,
+          total_price: item.qty * item.price,
+        })),
+      };
+
+      socket.emit("order", payload, (serverResponse) => {
         console.log("Response dari server:", serverResponse);
         setResult(serverResponse);
-        setLoading(false);
-      }
+      });
+    } catch (error) {
+      console.error("Error while sending order:", error);
+      alert("Terjadi kesalahan saat mengirim pesanan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateCart = (mn) => {
+    dispatch(
+      increment({
+        id_menu: mn.id_menu,
+        title: mn.title,
+        price: mn.price,
+        qty: mn.qty || 1,
+        total_price: mn.price * (mn.qty || 1),
+      })
     );
   };
+
+  if (error) return <Error />;
 
   return (
     <div className="container mx-auto px-4 md:px-12 lg:px-20 min-h-screen flex flex-col">
@@ -130,13 +161,14 @@ export default function Checkout() {
       ) : (
         <div className="mt-6">
           {pesanan.map((item) => (
-            <div key={item.id_menu} className="flex justify-between items-center p-4 border-b">
+            <div key={item.id_menu} className="flex border-2 gap-8 justify-between items-center p-4 border-b">
               <div>
                 <h2 className="font-semibold text-lg">{item.title}</h2>
                 <p className="text-sm text-slate-500">
                   {item.qty} x {formatToRupiah(item.price)}
                 </p>
               </div>
+              <CounterButton checkoutModal="checkout" id_menu={item.id_menu} onIncrement={() => handleUpdateCart(item)} />
               <button onClick={() => dispatch(removeItem(item.id_menu))} className="bg-red-500 text-white px-3 py-1 rounded">
                 Delete
               </button>
@@ -150,43 +182,32 @@ export default function Checkout() {
         <p className="text-2xl font-bold">{formatToRupiah(totalPrice)}</p>
       </div>
 
-      <div className="mt-4">
-        <label className="block text-sm font-medium">Comment</label>
-        <input type="text" className="border-2 w-full p-2 rounded" placeholder="Extra sauce, etc." value={comment} onChange={(e) => setComment(e.target.value)} />
-      </div>
-      <div className="mt-4">
-        <label className="block text-sm font-medium">By Name</label>
-        <input type="text" className="border-2 w-full p-2 rounded" value={byName} onChange={(e) => setByName(e.target.value)} />
-      </div>
-
-      <div className="mt-4">
-        <h2 className="text-lg font-semibold">Payment Method</h2>
-        <p>please pay at the cashier</p>
-      </div>
-
-      <button onClick={sendOrder} disabled={loading} className="mt-6 bg-blue-500 text-white py-2 px-4 rounded w-full">
-        {loading ? "Processing..." : "Confirm & Pay"}
-      </button>
+      <CheckoutForm onSubmit={sendOrder} isLoading={loading} />
 
       <Link href={`/menu/${urlCode}`} className="mt-4 text-blue-500 text-center">
         Back To Menu
       </Link>
 
-      {result?.data?.length > 0 && (
+      {result?.success && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h2 className="text-xl font-bold">{result.message}!</h2>
             <p className="mt-2 text-gray-600">Please pay at cashier.</p>
-            <Link href={`/menu/${urlCode}`}>
-              <button
-                onClick={() => {
-                  setResult(null), dispatch(resetPesanan());
-                }}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                OK
-              </button>
-            </Link>
+            <div className="flex gap-2 justify-center">
+              <Link href={`/menu/${urlCode}`}>
+                <button
+                  onClick={() => {
+                    setResult(null);
+                    dispatch(resetPesanan());
+                    dispatch(openModal());
+                  }}
+                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  OK
+                </button>
+              </Link>
+              {transaction?.id && transaction?.createdAt && transaction?.status === "active" && <CancelButton redirect={urlCode} transactionId={transaction.id} createdAt={transaction.createdAt} status={transaction.status} />}
+            </div>
           </div>
         </div>
       )}

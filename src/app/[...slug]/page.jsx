@@ -24,6 +24,7 @@ export default function Home() {
 
     const lastTwoSegments = params.slug.slice(-2).join("/");
     setUrlCode(params.slug.slice(-2).join("/"));
+    console.log(lastTwoSegments, "cek");
 
     axios
       .get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/table/checktablecode/${lastTwoSegments}`)
