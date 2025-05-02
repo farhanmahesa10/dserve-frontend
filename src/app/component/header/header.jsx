@@ -60,22 +60,22 @@ export default function Header({ urlCode }) {
 
   return (
     <header className="bg-white shadow z-50 fixed w-full">
-      <div className="container mx-auto">
+      <div className="container mx-auto py-2">
         <div className="flex justify-between items-center p-2 relative">
-          <div className="w-16 h-10">
-            {outlets && outlets?.logo ? (
-              <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${encodeURI(outlets && outlets.logo)}`} className="w-full h-full object-contain" alt="Logo" />
+          <div className="">
+            {outlets?.logo ? (
+              <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${encodeURI(outlets.logo)}`} className="w-full h-full object-contain" alt="Logo" />
             ) : (
-              <h1 className="text-sm text-yellow-700 font-pacifico">{(outlets && outlets?.outlet_name) || "MenuCafeKu"}</h1>
+              <h1 className="text-sm text-yellow-700 font-pacifico whitespace-nowrap">{outlets?.outlet_name || "MenuCafeKu"}</h1>
             )}
           </div>
 
-          <nav className="flex gap-4">
+          <nav className="flex gap-4 ">
             <Link href={`/${urlCode || ""}`}>
-              <span className={`${url === `/${urlCode || ""}` ? "text-black" : "text-slate-400"} capitalize font-semibold py-2 hover:text-black`}>Home</span>
+              <span className={`${url === `/${urlCode || ""}` ? "text-yellow-700" : "text-slate-400"} capitalize font-semibold py-2 hover:text-yellow-600`}>Home</span>
             </Link>
             <Link href={`/menu/${urlCode || ""}`}>
-              <span className={`${url === `/menu/${urlCode || ""}` ? "text-black" : "text-slate-400"} capitalize font-semibold py-2 hover:text-black`}>Menu</span>
+              <span className={`${url === `/menu/${urlCode || ""}` ? "text-yellow-700" : "text-slate-400"} capitalize font-semibold py-2 hover:text-yellow-600`}>Menu</span>
             </Link>
           </nav>
 
@@ -88,8 +88,8 @@ export default function Header({ urlCode }) {
               <h1 className="text-base text-yellow-700 font-pacifico hidden sm:block">Contact</h1>
             )}
 
-            <div onClick={() => dispatch(openModal())} className="relative cursor-pointer w-8 h-8 sm:w-10 sm:h-10">
-              <GrTransaction className="text-4xl" />
+            <div onClick={() => dispatch(openModal())} className="relative cursor-pointer ">
+              <GrTransaction className="text-2xl" />
               {transactions.length > 0 && <span className="w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center absolute -top-1 -right-1">{transactions.length}</span>}
             </div>
           </div>

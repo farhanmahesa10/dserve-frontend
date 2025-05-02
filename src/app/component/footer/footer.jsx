@@ -7,7 +7,8 @@ import { useDispatch } from "react-redux";
 
 export default function Footer() {
   const dispatch = useDispatch();
-  const { outlets, contacts, statusContacts, statusOutlets, error } = useSelector((state) => state.counter);
+  const { outlets, contacts, statusContacts, statusOutlets, error } =
+    useSelector((state) => state.counter);
 
   useEffect(() => {
     if (statusOutlets === "idle") {
@@ -20,12 +21,14 @@ export default function Footer() {
     }
   }, [statusOutlets, dispatch]);
 
-  if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
-  if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  if (statusOutlets === "failed")
+    return <p className="text-red-500 text-center">Error: {error}</p>;
+  if (statusContacts === "failed")
+    return <p className="text-red-500 text-center">Error: {error}</p>;
   return (
-    <footer className="bg-slate-400 pt-10 ">
+    <footer className="bg-yellow-700 pt-10 ">
       <div className="flex flex-wrap container">
-        <div className="w-full px-4 mb-5 flex justify-center  text-slate-300 font-medium md:w-1/3 ">
+        <div className="w-full px-4 mb-5 flex justify-center  text-white font-medium md:w-1/3 ">
           <div className="w-full">
             <div className="w-full ml-8">
               <h3 className="font-bold text-2xl mb-2 ">History</h3>
@@ -33,7 +36,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="w-full px-4 mb-5 flex justify-center  text-slate-300 font-medium md:w-1/3 ">
+        <div className="w-full px-4 mb-5 flex justify-center  text-white font-medium md:w-1/3 ">
           <div className="w-full">
             <div className="w-full ml-8 xl:ml-32">
               <h3 className="font-bold text-2xl mb-2 ">Alamat</h3>
@@ -41,15 +44,24 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="w-full px-4 mb-5 flex flex-wrap text-slate-300 font-medium md:w-1/3 ">
+        <div className="w-full px-4 mb-5 flex flex-wrap text-white font-medium md:w-1/3 ">
           <div className="w-full ml-8 xl:ml-32 ">
             <h3 className="font-bold text-2xl mb-2">Media Sosial</h3>
             <div className="flex   w-36 flex-wrap gap-2 mb-2 ">
               {contacts &&
                 contacts.map((item) => {
                   return (
-                    <a key={item.id} href={`${item.link}`} target="_blank" className="w-7 h-7 mr-3 rounded-full flex justify-center items-center mb-3">
-                      <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${item.logo}`} alt={`${item.contact_name}`} className="w-7 h-7 object-cover" />
+                    <a
+                      key={item.id}
+                      href={`${item.link}`}
+                      target="_blank"
+                      className="w-7 h-7 mr-3 rounded-full flex justify-center items-center mb-3"
+                    >
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_PHOTOS}/${item.logo}`}
+                        alt={`${item.contact_name}`}
+                        className="w-7 h-7 object-cover"
+                      />
                     </a>
                   );
                 })}

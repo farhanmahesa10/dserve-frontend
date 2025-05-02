@@ -24,15 +24,21 @@ const CancelButton = ({ transactionId, createdAt, status, redirect }) => {
     toast.success("Successfully to cancel order");
   };
 
-  const isCancelable = Date.now() - new Date(createdAt).getTime() < 60000 && status !== "failed";
+  const isCancelable =
+    Date.now() - new Date(createdAt).getTime() < 60000 && status !== "failed";
 
   if (!isCancelable) return null;
 
   return (
     <>
       <Link href={`/menu/${redirect}`}>
-        <button onClick={handleCancel} className={`${secondsLeft === 0 ? "hidden" : ""} mt-4 w-full p-2 text-center border-2  rounded text-white bg-red-500 text-base font-semibold`}>
-          Cancel ( {secondsLeft} )
+        <button
+          onClick={handleCancel}
+          className={`${
+            secondsLeft === 0 ? "hidden" : ""
+          } mt-4 w-full p-2 text-center border-2  rounded   text-base font-semibold`}
+        >
+          You can cancel in ( {secondsLeft} )
         </button>
       </Link>
     </>

@@ -11,7 +11,9 @@ export default function HeaderMenu() {
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
 
   const dispatch = useDispatch();
-  const { categories, statusCategories } = useSelector((state) => state.counter);
+  const { categories, statusCategories } = useSelector(
+    (state) => state.counter
+  );
 
   useEffect(() => {
     if (statusCategories === "idle") {
@@ -23,7 +25,8 @@ export default function HeaderMenu() {
     const element = document.getElementById(id);
     if (element) {
       const offset = 75;
-      const topPosition = element.getBoundingClientRect().top + window.scrollY;
+      const topPosition =
+        element.getBoundingClientRect().top + window.scrollY - 20;
       window.scrollTo({
         top: topPosition - offset,
         behavior: "smooth",
@@ -51,10 +54,25 @@ export default function HeaderMenu() {
     <div className=" fixed left-0 mt-12 w-full z-40   ">
       <div className="container ">
         <div className="flex items-center justify-center text-sm gap-4 px-4 py-1  ">
-          <div className="flex gap-6 bg-gray-400  px-3 justify-center h-8">
+          <div className="flex gap-6 bg-yellow-700   px-4 rounded-bl-md rounded-br-md justify-center h-8">
+            <button
+              onClick={() => {
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }}
+              className="hover:text-gray-300 cursor-pointer font-semibold text-white capitalize transition-colors duration-300"
+            >
+              Best Seller
+            </button>
             {categories &&
               categories.map((item) => (
-                <button key={item.id} onClick={() => scrollToSection(item.type)} className="hover:text-black cursor-pointer font-semibold text-slate-900 capitalize transition-colors duration-300">
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.type)}
+                  className="hover:text-gray-300 cursor-pointer font-semibold text-white capitalize transition-colors duration-300"
+                >
                   {item.type}
                 </button>
               ))}

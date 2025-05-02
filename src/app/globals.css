@@ -27,6 +27,10 @@
 } */
 
 @layer components {
+
+  /* .container{
+    @apply flex justify-center
+  } */
   .navbar-fixed {
     @apply fixed z-[9999] bg-white bg-opacity-80;
     backdrop-filter: blur(5px);
@@ -51,6 +55,9 @@
   .table {
     @apply pl-5 pt-20 pb-8 w-full bg-blue-700 overflow-auto border-l-2;
     height: 300px; /* Tambahkan tinggi */
+  }
+  .clickable{
+    @apply hover:cursor-pointer hover:opacity-70
   }
   .walpaper {
     color: rgb(var(--foreground-rgb));
