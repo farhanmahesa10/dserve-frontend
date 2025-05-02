@@ -8,11 +8,13 @@ import { checkAndfetchGalleries } from "@/utils/checkGallery";
 export default function Gallery() {
   const [currentIndex, setCurrentIndex] = useState(null);
   const dispatch = useDispatch();
-  const { galleries, statusGalleries, error } = useSelector((state) => state.counter);
+  const { galleries, outletCode, statusGalleries, error } = useSelector((state) => state.counter);
 
   useEffect(() => {
-    dispatch(checkAndfetchGalleries());
-  }, [dispatch]);
+    if (outletCode) {
+      dispatch(checkAndfetchGalleries(outletCode));
+    }
+  }, [dispatch, outletCode]);
 
   if (statusGalleries === "failed") {
     return <p className="text-red-500 text-center">Error: {error}</p>;

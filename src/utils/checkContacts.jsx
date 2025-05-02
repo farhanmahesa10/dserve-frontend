@@ -1,15 +1,19 @@
 import { fetchContacts, setContactsUpdatedAt } from "@/store/slice";
 import axios from "axios";
 
-export const checkAndfetchContacts = () => async (dispatch, getState) => {
+export const checkAndfetchContacts = (outletCode) => async (dispatch, getState) => {
+  if (!outletCode || typeof outletCode !== "string" || outletCode.trim() === "") {
+    console.warn("❌ checkAndfetchContacts: outletCode belum tersedia atau tidak valid.");
+    return;
+  }
   try {
-    const localUpdatedAt = getState().counter.contactsUpdateAt;
+    const localUpdatedAt = getState().counter.contactsUpdatedAt;
 
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/contact/OUT5759/meta`);
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/contact/${outletCode}/meta`);
     const serverUpdatedAt = res.data.updatedAt;
 
     if (localUpdatedAt !== serverUpdatedAt) {
-      const fetchResult = await dispatch(fetchContacts());
+      const fetchResult = await dispatch(fetchContacts(outletCode));
       if (fetchResult.meta.requestStatus === "fulfilled") {
         dispatch(setContactsUpdatedAt(serverUpdatedAt));
       }
@@ -18,6 +22,6 @@ export const checkAndfetchContacts = () => async (dispatch, getState) => {
     }
   } catch (err) {
     console.error(err);
-    await dispatch(fetchContacts());
+    await dispatch(fetchContacts(outletCode));
   }
 };

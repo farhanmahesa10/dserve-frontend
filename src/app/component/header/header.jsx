@@ -10,27 +10,28 @@ import ModalNotification from "@/atom/modalNotifications";
 import { checkAndfetchTransactions } from "@/utils/checkTransactions";
 import { GrTransaction } from "react-icons/gr";
 import { closeModal, openModal } from "@/store/slice";
-import { toast } from "react-toastify";
 export default function Header({ urlCode }) {
   const pathname = usePathname();
   const [url, setUrl] = useState("");
   const [tiktok, setTiktok] = useState(null);
   const [tiktokLogo, setTiktokLogo] = useState(null);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const isModalOpen = useSelector((state) => state.counter.isModalOpen);
 
   useEffect(() => {
     setUrl(pathname);
   }, [pathname]);
 
   const dispatch = useDispatch();
-  const { outlets, transactions, statusOutlets, contacts, isModalOpen, statusContacts, error } = useSelector((state) => state.counter);
+  const { outlets, outletCode, transactions, statusOutlets, contacts, isModalOpen, statusContacts, error } = useSelector((state) => state.counter);
+  useEffect(() => {
+    dispatch(checkAndfetchOutlets(outletCode));
+  }, [dispatch]);
 
   useEffect(() => {
-    dispatch(checkAndfetchOutlets());
-    dispatch(checkAndfetchContacts());
-    dispatch(checkAndfetchTransactions());
-  }, [dispatch]);
+    dispatch(checkAndfetchContacts(outletCode));
+    dispatch(checkAndfetchTransactions(outletCode));
+  }, [dispatch, outletCode]);
+  console.log(outletCode, "cek kode", typeof outletCode == "string");
+  console.log(outlets.address, "cek ini");
 
   useEffect(() => {
     if (contacts?.length > 0) {
@@ -43,8 +44,8 @@ export default function Header({ urlCode }) {
     }
   }, [contacts]);
 
-  if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
-  if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  // if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  // if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   useEffect(() => {
     if (isModalOpen) {
       document.body.style.overflow = "hidden";
@@ -62,10 +63,10 @@ export default function Header({ urlCode }) {
       <div className="container mx-auto">
         <div className="flex justify-between items-center p-2 relative">
           <div className="w-16 h-10">
-            {outlets?.logo ? (
-              <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${encodeURI(outlets.logo)}`} className="w-full h-full object-contain" alt="Logo" />
+            {outlets && outlets?.logo ? (
+              <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${encodeURI(outlets && outlets.logo)}`} className="w-full h-full object-contain" alt="Logo" />
             ) : (
-              <h1 className="text-sm text-yellow-700 font-pacifico">{outlets?.outlet_name || "MenuCafeKu"}</h1>
+              <h1 className="text-sm text-yellow-700 font-pacifico">{(outlets && outlets?.outlet_name) || "MenuCafeKu"}</h1>
             )}
           </div>
 

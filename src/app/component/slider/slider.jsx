@@ -12,15 +12,13 @@ import { checkAndfetchEvents } from "@/utils/checkEvent";
 
 const Slider = () => {
   const dispatch = useDispatch();
-  const { outlets, statusOutlets, events, statusEvents, error } = useSelector((state) => state.counter);
+  const { outlets, outletCode, statusOutlets, events, statusEvents, error } = useSelector((state) => state.counter);
 
   useEffect(() => {
-    dispatch(checkAndfetchOutlets());
-    dispatch(checkAndfetchEvents());
-  }, [dispatch]);
+    dispatch(checkAndfetchOutlets(outletCode));
+    dispatch(checkAndfetchEvents(outletCode));
+  }, [dispatch, outletCode]);
 
-  if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
-  if (statusEvents === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   return (
     <div className="flex justify-between mt-32">
       <div className="w-1/2  p-10">

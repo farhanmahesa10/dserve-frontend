@@ -1,15 +1,16 @@
 import { fetchEvents, setEventsUpdatedAt } from "@/store/slice";
 import axios from "axios";
 
-export const checkAndfetchEvents = () => async (dispatch, getState) => {
+export const checkAndfetchEvents = (outletCode) => async (dispatch, getState) => {
   try {
-    const localUpdatedAt = getState().counter.eventsUpdateAt;
+    if (!outletCode) return;
+    const localUpdatedAt = getState().counter.eventsUpdatedAt;
 
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/event/OUT5759/meta`);
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/event/${outletCode}/meta`);
     const serverUpdatedAt = res.data.updatedAt;
 
     if (localUpdatedAt !== serverUpdatedAt) {
-      const fetchResult = await dispatch(fetchEvents());
+      const fetchResult = await dispatch(fetchEvents(outletCode));
       if (fetchResult.meta.requestStatus === "fulfilled") {
         dispatch(setEventsUpdatedAt(serverUpdatedAt));
       }
@@ -18,6 +19,6 @@ export const checkAndfetchEvents = () => async (dispatch, getState) => {
     }
   } catch (err) {
     console.error(err);
-    await dispatch(fetchEvents());
+    await dispatch(fetchEvents(outletCode));
   }
 };

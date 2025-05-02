@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { increment } from "@/store/slice";
+import { increment, setOutletCode } from "@/store/slice";
 import Error from "@/app/component/error/error";
 import Header from "@/app/component/header/header";
 import HeaderMenu from "@/app/component/header/headerMenu";
@@ -22,6 +22,7 @@ export default function Menu() {
   const [data, setData] = useState(null);
   const [pageError, setPageError] = useState(false);
   const [urlCode, setUrlCode] = useState("");
+  const [code, setCode] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const id = searchParams.get("id");
@@ -35,6 +36,7 @@ export default function Menu() {
 
     const lastTwoSegments = params.slug.slice(-2).join("/");
     setUrlCode(lastTwoSegments);
+    setCode(params.slug[0]);
 
     axios
       .get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/table/checktablecode/${lastTwoSegments}`)
@@ -48,8 +50,11 @@ export default function Menu() {
   }, [params]);
 
   useEffect(() => {
-    dispatch(checkAndFetchAllMenus());
-  }, [dispatch]);
+    if (code) {
+      dispatch(setOutletCode(code));
+      dispatch(checkAndFetchAllMenus(code));
+    }
+  }, [dispatch, code]);
 
   useEffect(() => {
     if (id && allMenus.length) {
@@ -85,6 +90,7 @@ export default function Menu() {
   if (pageError) {
     return <Error />;
   }
+  console.log(code, "cek ini");
 
   return (
     <>

@@ -7,16 +7,16 @@ import { fetchContacts } from "@/store/slice";
 
 export default function Contact({ contact }) {
   const dispatch = useDispatch();
-  const { contacts, outlets, statusOutlets, statusContacts, error } = useSelector((state) => state.counter);
+  const { contacts, outletCode, outlets, statusOutlets, statusContacts, error } = useSelector((state) => state.counter);
 
   useEffect(() => {
     if (statusContacts === "idle") {
-      dispatch(fetchContacts());
+      dispatch(fetchContacts(outletCode));
     }
-  }, [statusContacts, dispatch]);
+  }, [statusContacts, outletCode, dispatch]);
 
-  if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
-  if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  // if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
+  // if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   return (
     <div className="">
       <div className=" ">

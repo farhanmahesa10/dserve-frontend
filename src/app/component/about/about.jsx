@@ -7,11 +7,13 @@ import { checkAndfetchOutlets } from "@/utils/checkOutlet";
 
 export default function About() {
   const dispatch = useDispatch();
-  const { outlets, statusOutlets, error } = useSelector((state) => state.counter);
+  const { outlets, outletCode, statusOutlets, error } = useSelector((state) => state.counter);
 
   useEffect(() => {
-    dispatch(checkAndfetchOutlets());
-  }, [dispatch]);
+    if (outletCode) {
+      dispatch(checkAndfetchOutlets(outletCode));
+    }
+  }, [dispatch, outletCode]);
 
   if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   return (

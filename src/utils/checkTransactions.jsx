@@ -1,15 +1,16 @@
 import { fetchTransactions, setTransactionsUpdatedAt } from "@/store/slice";
 import axios from "axios";
 
-export const checkAndfetchTransactions = () => async (dispatch, getState) => {
+export const checkAndfetchTransactions = (outletCode) => async (dispatch, getState) => {
   try {
-    const localUpdatedAt = getState().counter.transactionsUpdateAt;
+    if (!outletCode) return;
+    const localUpdatedAt = getState().counter.transactionsUpdatedAt;
 
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/OUT5759/meta`);
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/${outletCode}/meta`);
     const serverUpdatedAt = res.data.updatedAt;
 
     if (localUpdatedAt !== serverUpdatedAt) {
-      const fetchResult = await dispatch(fetchTransactions());
+      const fetchResult = await dispatch(fetchTransactions(outletCode));
       if (fetchResult.meta.requestStatus === "fulfilled") {
         dispatch(setTransactionsUpdatedAt(serverUpdatedAt));
       }
@@ -18,6 +19,6 @@ export const checkAndfetchTransactions = () => async (dispatch, getState) => {
     }
   } catch (err) {
     console.error(err);
-    await dispatch(fetchTransactions());
+    await dispatch(fetchTransactions(outletCode));
   }
 };
