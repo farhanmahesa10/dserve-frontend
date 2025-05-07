@@ -2,8 +2,6 @@ import { fetchAllMenus, fetchMenusBestSeller, setMenusUpdatedAt } from "@/store/
 import axios from "axios";
 
 export const checkAndFetchAllMenus = (outletCode) => async (dispatch, getState) => {
-  console.log(outletCode, "cek di allmenus");
-
   try {
     if (!outletCode) return;
     const localUpdatedAt = getState().counter.menusUpdatedAt;

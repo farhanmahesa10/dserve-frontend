@@ -8,8 +8,11 @@ export const checkAndfetchEvents = (outletCode) => async (dispatch, getState) =>
 
     const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/event/${outletCode}/meta`);
     const serverUpdatedAt = res.data.updatedAt;
+    console.log(localUpdatedAt, serverUpdatedAt, "cek disini");
 
     if (localUpdatedAt !== serverUpdatedAt) {
+      console.log("problem in here");
+
       const fetchResult = await dispatch(fetchEvents(outletCode));
       if (fetchResult.meta.requestStatus === "fulfilled") {
         dispatch(setEventsUpdatedAt(serverUpdatedAt));

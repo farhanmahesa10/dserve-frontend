@@ -2,7 +2,11 @@ import { fetchOutlets, setOutletsUpdatedAt } from "@/store/slice";
 import axios from "axios";
 
 export const checkAndfetchOutlets = (outletCode) => async (dispatch, getState) => {
-  if (!outletCode) return;
+  if (!outletCode) {
+    console.warn("⛔️ outletCode belum tersedia, skip fetch.");
+    return;
+  }
+
   try {
     const localUpdatedAt = getState().counter.outletsUpdatedAt;
 
@@ -11,14 +15,16 @@ export const checkAndfetchOutlets = (outletCode) => async (dispatch, getState) =
 
     if (localUpdatedAt !== serverUpdatedAt) {
       const fetchResult = await dispatch(fetchOutlets(outletCode));
+      console.log(fetchResult, "cek result");
+
       if (fetchResult.meta.requestStatus === "fulfilled") {
         dispatch(setOutletsUpdatedAt(serverUpdatedAt));
       }
     } else {
-      console.log("✅ AllMenus masih up to date, tidak perlu fetch ulang.");
+      console.log("✅ Outlet data masih up to date, tidak perlu fetch ulang.");
     }
   } catch (err) {
-    console.error(err);
+    console.error("❌ Error saat fetch outlet:", err);
     await dispatch(fetchOutlets(outletCode));
   }
 };

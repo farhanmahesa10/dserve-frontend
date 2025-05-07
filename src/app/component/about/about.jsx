@@ -5,15 +5,16 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { checkAndfetchOutlets } from "@/utils/checkOutlet";
 
-export default function About() {
+export default function About(outletCode) {
   const dispatch = useDispatch();
-  const { outlets, outletCode, statusOutlets, error } = useSelector((state) => state.counter);
+  const { outlets, statusOutlets, error } = useSelector((state) => state.counter);
+  const codeOutlet = outletCode.outletCode;
 
   useEffect(() => {
-    if (outletCode) {
-      dispatch(checkAndfetchOutlets(outletCode));
+    if (codeOutlet) {
+      dispatch(checkAndfetchOutlets(codeOutlet));
     }
-  }, [dispatch, outletCode]);
+  }, [dispatch, codeOutlet]);
 
   if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   return (

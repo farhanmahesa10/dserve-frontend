@@ -10,14 +10,17 @@ import { useSelector } from "react-redux";
 import { checkAndfetchOutlets } from "@/utils/checkOutlet";
 import { checkAndfetchEvents } from "@/utils/checkEvent";
 
-const Slider = () => {
+const Slider = (outletCode) => {
   const dispatch = useDispatch();
-  const { outlets, outletCode, statusOutlets, events, statusEvents, error } = useSelector((state) => state.counter);
+  const { outlets, events } = useSelector((state) => state.counter);
+  const codeOutlet = outletCode.outletCode;
 
   useEffect(() => {
-    dispatch(checkAndfetchOutlets(outletCode));
-    dispatch(checkAndfetchEvents(outletCode));
-  }, [dispatch, outletCode]);
+    if (codeOutlet) {
+      dispatch(checkAndfetchOutlets(codeOutlet));
+      dispatch(checkAndfetchEvents(codeOutlet));
+    }
+  }, [codeOutlet, dispatch]);
 
   return (
     <div className="flex justify-between mt-32">
@@ -30,23 +33,8 @@ const Slider = () => {
         )}
 
         <button href="#" className="border-2 mt-4 w-32 mb-5">
-          <p className="m-1">maps to hotel</p>
+          <p className="m-1 capitalize">maps to hotel</p>
         </button>
-
-        <div className=" flex gap-5">
-          <div className="text-center">
-            <p className="text-lg">Room</p>
-            <h1 className="text-2xl font-semibold">100</h1>
-          </div>
-          <div className="text-center">
-            <p className="text-lg">Total Order</p>
-            <h1 className="text-2xl font-semibold">20k +</h1>
-          </div>
-          <div className="text-center">
-            <p className="text-lg">Google Review</p>
-            <h1 className="text-2xl font-semibold">4.5</h1>
-          </div>
-        </div>
       </div>
       <div className="w-96 mr-24  h-80">
         <Swiper

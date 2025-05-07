@@ -6,6 +6,7 @@ export const checkAndfetchContacts = (outletCode) => async (dispatch, getState) 
     console.warn("❌ checkAndfetchContacts: outletCode belum tersedia atau tidak valid.");
     return;
   }
+
   try {
     const localUpdatedAt = getState().counter.contactsUpdatedAt;
 

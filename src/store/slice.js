@@ -13,6 +13,7 @@ const initialState = {
   categories: [],
   allMenus: [],
   outletCode: {},
+  cancelOrder: [],
   menusUpdatedAt: null,
   transactionsUpdatedAt: null,
   contactsUpdatedAt: null,
@@ -36,15 +37,17 @@ export const fetchOutlets = createAsyncThunk("counter/fetchOutlets", async (outl
   const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/outlet/showbyoutletcode/${outletCode}`);
   return response.data.data;
 });
-export const fetchTransactions = createAsyncThunk("counter/fetchTransactions", async (outletCode) => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/shownotpay/${outletCode}`);
+export const fetchTransactions = createAsyncThunk("counter/fetchTransactions", async (urlCode) => {
+  console.log(urlCode, "cek url di slice");
+
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/shownotpay/${urlCode}`);
   return response.data.data;
 });
-export const updateTransactions = createAsyncThunk("counter/updateTransactions", async ({ id, status }, { dispatch }) => {
+export const updateTransactions = createAsyncThunk("counter/updateTransactions", async ({ redirect, id, status }, { dispatch }) => {
   const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${id}`, {
     status,
   });
-  dispatch(fetchTransactions());
+  dispatch(fetchTransactions(redirect));
   return response.data.data;
 });
 export const fetchEvents = createAsyncThunk("counter/fetchEvents", async (outletCode) => {
@@ -77,9 +80,14 @@ export const counterSlice = createSlice({
   name: "counter",
   initialState,
   reducers: {
+    clearCanceledOrders: (state) => {
+      state.cancelOrder = [];
+    },
+    setOrderCanceled: (state, action) => {
+      state.cancelOrder.push(action.payload);
+    },
     setOutletCode: (state, action) => {
       state.outletCode = action.payload;
-      console.log(action.payload, "cek di slice");
     },
     openModal: (state) => {
       state.isModalOpen = true;
@@ -275,6 +283,8 @@ export const {
   setGalleriesUpdatedAt,
   setOutletsUpdatedAt,
   setTransactionsUpdatedAt,
+  setOrderCanceled,
+  clearCanceledOrders,
 } = counterSlice.actions;
 
 export default counterSlice.reducer;
