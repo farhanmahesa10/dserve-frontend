@@ -35,7 +35,7 @@ export default function Header({ urlCode, outletCode }) {
       dispatch(checkAndfetchContacts(outletCode));
       dispatch(checkAndfetchTransactions({ outletCode, urlCode }));
     }
-  }, [outletCode]);
+  }, [outletCode, urlCode]);
 
   useEffect(() => {
     if (contacts?.length > 0) {
@@ -51,18 +51,14 @@ export default function Header({ urlCode, outletCode }) {
   useEffect(() => {
     if (!outletCode || !segment2) return;
 
-    // Gabung ke room sesuai roomCode
     socket.emit("joinRoom", { roomCode: segment2 });
 
-    // Tangkap event pembatalan dari server
     socket.on("UserReceiveCanceled", (data) => {
-      // Pastikan hanya pesan dari room yang sesuai
       if (data.roomCode === segment2) {
         dispatch(setOrderCanceled(data));
       }
     });
 
-    // Tangkap event konfirmasi dari kasir
     socket.on("finishOrder", (response) => {
       if (response.status === "success") {
         toast.success("Successfully canceled order");
@@ -140,11 +136,11 @@ export default function Header({ urlCode, outletCode }) {
 
             {showCancelList && cancelOrder.length > 0 && (
               <div className="absolute right-4 top-20 bg-white border rounded shadow-md w-72 z-50 p-3 transition-all duration-300 ease-in-out opacity-100">
-                <h3 className="text-sm font-semibold mb-2">Pesanan Dibatalkan</h3>
+                <h3 className="text-sm font-semibold mb-2">Order Canceled</h3>
                 <ul className="text-sm max-h-60 overflow-auto space-y-2">
                   {cancelOrder.map((order, idx) => (
                     <li key={idx} className="border-b pb-1">
-                      Pesanan di <strong>{order.room}</strong> dibatalkan.
+                      Order in room <strong>{order.room}</strong> is canceled.
                     </li>
                   ))}
                 </ul>

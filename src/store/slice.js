@@ -38,8 +38,6 @@ export const fetchOutlets = createAsyncThunk("counter/fetchOutlets", async (outl
   return response.data.data;
 });
 export const fetchTransactions = createAsyncThunk("counter/fetchTransactions", async (urlCode) => {
-  console.log(urlCode, "cek url di slice");
-
   const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/shownotpay/${urlCode}`);
   return response.data.data;
 });
@@ -80,6 +78,11 @@ export const counterSlice = createSlice({
   name: "counter",
   initialState,
   reducers: {
+    resetTransactions: (state) => {
+      state.transactions = [];
+      state.statusTransactions = "idle";
+      state.error = null;
+    },
     clearCanceledOrders: (state) => {
       state.cancelOrder = [];
     },
@@ -285,6 +288,7 @@ export const {
   setTransactionsUpdatedAt,
   setOrderCanceled,
   clearCanceledOrders,
+  resetTransactions,
 } = counterSlice.actions;
 
 export default counterSlice.reducer;

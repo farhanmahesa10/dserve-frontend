@@ -8,6 +8,8 @@ import socket from "@/lib/socket";
 const CancelButton = ({ room, transaction, transactionId, createdAt, status, redirect }) => {
   const dispatch = useDispatch();
   const [secondsLeft, setSecondsLeft] = useState(60);
+  const [result, setResult] = useState();
+  console.log(result, "cek");
 
   if (!transaction || !transaction.id_outlet) return null;
 
@@ -43,6 +45,7 @@ const CancelButton = ({ room, transaction, transactionId, createdAt, status, red
           dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
           dispatch(resetPesanan());
           dispatch(closeModal());
+          setResult(response);
         } else {
           toast.error("Order cancellation failed");
         }

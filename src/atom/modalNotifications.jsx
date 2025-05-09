@@ -9,22 +9,15 @@ import { FaTimesCircle } from "react-icons/fa";
 const ModalNotification = ({ onClose }) => {
   const params = useParams();
   const dispatch = useDispatch();
-  const [urlCode, setUrlCode] = useState("");
-  const [room, setRoom] = useState("");
   const { transactions, outletCode } = useSelector((state) => state.counter);
+  const [room, setRoom] = useState("");
 
   useEffect(() => {
-    if (!params?.slug?.length || params.slug.length < 2) {
-      console.warn("Invalid URL params");
-      return;
-    }
+    if (!params?.slug || params.slug.length < 2 || !outletCode) return;
+
     const lastTwoSegments = params.slug.slice(-2).join("/");
-    setUrlCode(lastTwoSegments);
-  }, [params]);
-
-  useEffect(() => {
-    if (outletCode) dispatch(checkAndfetchTransactions(outletCode));
-  }, [dispatch, outletCode]);
+    dispatch(checkAndfetchTransactions({ outletCode, urlCode: lastTwoSegments }));
+  }, [params, outletCode, dispatch]);
 
   useEffect(() => {
     if (transactions.length > 0 && transactions[0].Table?.number_table) {
@@ -33,13 +26,12 @@ const ModalNotification = ({ onClose }) => {
   }, [transactions]);
 
   const getTotalHarga = (orders) => {
-    let total = 0;
-    orders?.forEach((order) => {
+    return orders?.reduce((total, order) => {
       if (order.Menu) {
-        total += (order.qty || 1) * order.Menu.price;
+        return total + (order.qty || 1) * order.Menu.price;
       }
-    });
-    return total;
+      return total;
+    }, 0);
   };
 
   const sortedTransactions = [...transactions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -85,7 +77,7 @@ const ModalNotification = ({ onClose }) => {
               <h4 className="text-lg font-bold text-slate-700">Total</h4>
               <span className="text-xl font-semibold text-blue-600">{formatToRupiah(getTotalHarga(trx.Orders))}</span>
             </div>
-            <CancelButton redirect={urlCode} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
+            <CancelButton redirect={params.slug.slice(-2).join("/")} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
           </div>
         ))
       )}

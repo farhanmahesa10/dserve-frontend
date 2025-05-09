@@ -22,7 +22,6 @@ export default function Checkout() {
   const [urlCode, setUrlCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [transaction, setTransaction] = useState(null);
-  console.log(transaction, "cek trx");
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
@@ -131,7 +130,6 @@ export default function Checkout() {
       };
 
       socket.emit("order", payload, (serverResponse) => {
-        console.log("Response dari server:", serverResponse);
         setResult(serverResponse);
       });
     } catch (error) {
@@ -154,8 +152,6 @@ export default function Checkout() {
       })
     );
   };
-  console.log(data, "cek table room");
-  console.log(room, " table room");
 
   if (error) return <Error />;
   return (
