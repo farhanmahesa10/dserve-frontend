@@ -1,23 +1,18 @@
-import { fetchTransactions, setTransactionsUpdatedAt } from "@/store/slice";
+import { fetchTransactions, resetTransactions, setTransactionsUpdatedAt } from "@/store/slice";
 import axios from "axios";
 
-export const checkAndfetchTransactions = () => async (dispatch, getState) => {
-  try {
-    const localUpdatedAt = getState().counter.transactionsUpdateAt;
+export const checkAndfetchTransactions =
+  ({ outletCode, urlCode }) =>
+  async (dispatch, getState) => {
+    if (!outletCode || !urlCode) return;
 
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/OUT5759/meta`);
-    const serverUpdatedAt = res.data.updatedAt;
-
-    if (localUpdatedAt !== serverUpdatedAt) {
-      const fetchResult = await dispatch(fetchTransactions());
+    try {
+      await dispatch(resetTransactions());
+      const fetchResult = await dispatch(fetchTransactions(urlCode));
       if (fetchResult.meta.requestStatus === "fulfilled") {
-        dispatch(setTransactionsUpdatedAt(serverUpdatedAt));
       }
-    } else {
-      console.log("✅ transactions masih up to date, tidak perlu fetch ulang.");
+    } catch (err) {
+      console.error("❌ Error fetching metadata or transactions", err);
+      await dispatch(fetchTransactions(urlCode));
     }
-  } catch (err) {
-    console.error(err);
-    await dispatch(fetchTransactions());
-  }
-};
+  };

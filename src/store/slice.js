@@ -12,6 +12,8 @@ const initialState = {
   menus: [],
   categories: [],
   allMenus: [],
+  outletCode: {},
+  cancelOrder: [],
   menusUpdatedAt: null,
   transactionsUpdatedAt: null,
   contactsUpdatedAt: null,
@@ -31,44 +33,44 @@ const initialState = {
   isModalOpen: false,
 };
 
-export const fetchOutlets = createAsyncThunk("counter/fetchOutlets", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/outlet/showbyoutletcode/OUT5759`);
+export const fetchOutlets = createAsyncThunk("counter/fetchOutlets", async (outletCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/outlet/showbyoutletcode/${outletCode}`);
   return response.data.data;
 });
-export const fetchTransactions = createAsyncThunk("counter/fetchTransactions", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/shownotpay/OUT5759`);
+export const fetchTransactions = createAsyncThunk("counter/fetchTransactions", async (urlCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/shownotpay/${urlCode}`);
   return response.data.data;
 });
-export const updateTransactions = createAsyncThunk("counter/updateTransactions", async ({ id, status }, { dispatch }) => {
+export const updateTransactions = createAsyncThunk("counter/updateTransactions", async ({ redirect, id, status }, { dispatch }) => {
   const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${id}`, {
     status,
   });
-  dispatch(fetchTransactions());
+  dispatch(fetchTransactions(redirect));
   return response.data.data;
 });
-export const fetchEvents = createAsyncThunk("counter/fetchEvents", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/event/showbyoutletcode/OUT5759`);
+export const fetchEvents = createAsyncThunk("counter/fetchEvents", async (outletCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/event/showbyoutletcode/${outletCode}`);
   return response.data.data;
 });
-export const fetchGalleries = createAsyncThunk("counter/fetchGalleries", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/gallery/showbyoutletcode/OUT5759`);
+export const fetchGalleries = createAsyncThunk("counter/fetchGalleries", async (outletCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/gallery/showbyoutletcode/${outletCode}`);
   return response.data.data;
 });
-export const fetchContacts = createAsyncThunk("counter/fetchContacts", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/contact/showbyoutletcode/OUT5759`);
+export const fetchContacts = createAsyncThunk("counter/fetchContacts", async (outletCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/contact/showbyoutletcode/${outletCode}`);
   return response.data.data;
 });
 
-export const fetchMenusBestSeller = createAsyncThunk("counter/fetchMenusBestSeller", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/menu/showbyoutletcodebestseller/OUT5759/true`);
+export const fetchMenusBestSeller = createAsyncThunk("counter/fetchMenusBestSeller", async (outletCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/menu/showbyoutletcodebestseller/${outletCode}/true`);
   return response.data.data;
 });
-export const fetchAllMenus = createAsyncThunk("counter/fetchAllMenus", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/menu/showbyoutletcodedesc/OUT5759`);
+export const fetchAllMenus = createAsyncThunk("counter/fetchAllMenus", async (outletCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/menu/showbyoutletcodedesc/${outletCode}`);
   return response.data.data;
 });
-export const fetchCategories = createAsyncThunk("counter/fetchCategories", async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/category/showbyoutletcode/OUT5759`);
+export const fetchCategories = createAsyncThunk("counter/fetchCategories", async (outletCode) => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/category/showbyoutletcode/${outletCode}`);
   return response.data.data;
 });
 
@@ -76,6 +78,20 @@ export const counterSlice = createSlice({
   name: "counter",
   initialState,
   reducers: {
+    resetTransactions: (state) => {
+      state.transactions = [];
+      state.statusTransactions = "idle";
+      state.error = null;
+    },
+    clearCanceledOrders: (state) => {
+      state.cancelOrder = [];
+    },
+    setOrderCanceled: (state, action) => {
+      state.cancelOrder.push(action.payload);
+    },
+    setOutletCode: (state, action) => {
+      state.outletCode = action.payload;
+    },
     openModal: (state) => {
       state.isModalOpen = true;
     },
@@ -255,6 +271,7 @@ export const counterSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
+  setOutletCode,
   openModal,
   closeModal,
   increment,
@@ -269,6 +286,9 @@ export const {
   setGalleriesUpdatedAt,
   setOutletsUpdatedAt,
   setTransactionsUpdatedAt,
+  setOrderCanceled,
+  clearCanceledOrders,
+  resetTransactions,
 } = counterSlice.actions;
 
 export default counterSlice.reducer;

@@ -4,29 +4,22 @@ import { HomeSkeleton } from "../skeleton/homeSkeleton";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { fetchContacts } from "@/store/slice";
+import { checkAndfetchContacts } from "@/utils/checkContacts";
 
-export default function Contact({ contact }) {
+export default function Contact(outletCode) {
   const dispatch = useDispatch();
-  const { contacts, outlets, statusOutlets, statusContacts, error } = useSelector((state) => state.counter);
+  const { contacts, outlets } = useSelector((state) => state.counter);
+  const codeOutlet = outletCode.outletCode;
 
   useEffect(() => {
-    if (statusContacts === "idle") {
-      dispatch(fetchContacts());
-    }
-  }, [statusContacts, dispatch]);
+    dispatch(checkAndfetchContacts(codeOutlet));
+  }, [codeOutlet, dispatch]);
 
-  if (statusContacts === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
-  if (statusOutlets === "failed") return <p className="text-red-500 text-center">Error: {error}</p>;
   return (
     <div className="">
       <div className=" ">
         <h2 className="text-center font-semibold font-display text-2xl md:text-4xl  ">Contact</h2>
       </div>
-      {/* {contact.length == 0 ? (
-        <div className="px-[20px] md:px-[50px] lg:px-[100px]">
-          <HomeSkeleton />
-        </div>
-      ) : ( */}
       <div className=" pt-14  flex flex-wrap">
         <div className="w-full flex justify-center gap-10">
           {contacts &&

@@ -5,14 +5,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { HomeSkeleton } from "../skeleton/homeSkeleton";
 import { checkAndfetchGalleries } from "@/utils/checkGallery";
 
-export default function Gallery() {
+export default function Gallery(outletCode) {
   const [currentIndex, setCurrentIndex] = useState(null);
   const dispatch = useDispatch();
   const { galleries, statusGalleries, error } = useSelector((state) => state.counter);
+  const codeOutlet = outletCode.outletCode;
 
   useEffect(() => {
-    dispatch(checkAndfetchGalleries());
-  }, [dispatch]);
+    if (codeOutlet) {
+      dispatch(checkAndfetchGalleries(codeOutlet));
+    }
+  }, [codeOutlet, dispatch]);
 
   if (statusGalleries === "failed") {
     return <p className="text-red-500 text-center">Error: {error}</p>;

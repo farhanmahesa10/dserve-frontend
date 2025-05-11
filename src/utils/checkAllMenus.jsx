@@ -1,29 +1,30 @@
 import { fetchAllMenus, fetchMenusBestSeller, setMenusUpdatedAt } from "@/store/slice";
 import axios from "axios";
 
-export const checkAndFetchAllMenus = () => async (dispatch, getState) => {
+export const checkAndFetchAllMenus = (outletCode) => async (dispatch, getState) => {
   try {
+    if (!outletCode) return;
     const localUpdatedAt = getState().counter.menusUpdatedAt;
 
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/menu/OUT5759/meta`);
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/menu/${outletCode}/meta`);
     const serverUpdatedAt = res.data.updatedAt;
 
     if (localUpdatedAt !== serverUpdatedAt) {
-      const result = await dispatch(fetchAllMenus());
+      const result = await dispatch(fetchAllMenus(outletCode));
 
-      await dispatch(fetchMenusBestSeller());
+      await dispatch(fetchMenusBestSeller(outletCode));
 
       if (result.meta.requestStatus === "fulfilled") {
         dispatch(setMenusUpdatedAt(serverUpdatedAt));
       }
     } else {
-      await dispatch(fetchMenusBestSeller());
+      await dispatch(fetchMenusBestSeller(outletCode));
       console.log("✅ AllMenus masih up to date, hanya fetch BestSeller.");
     }
   } catch (err) {
     console.error("❌ Error saat cek atau fetch:", err);
 
-    await dispatch(fetchAllMenus());
-    await dispatch(fetchMenusBestSeller());
+    await dispatch(fetchAllMenus(outletCode));
+    await dispatch(fetchMenusBestSeller(outletCode));
   }
 };
