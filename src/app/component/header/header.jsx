@@ -16,6 +16,10 @@ import { toast } from "react-toastify";
 
 export default function Header({ urlCode, outletCode }) {
   const pathname = usePathname();
+  const dispatch = useDispatch();
+
+  const { outlets, cancelOrder, transactions, contacts, isModalOpen } = useSelector((state) => state.counter);
+
   const [url, setUrl] = useState("");
   const [tiktok, setTiktok] = useState(null);
   const [tiktokLogo, setTiktokLogo] = useState(null);
@@ -26,69 +30,67 @@ export default function Header({ urlCode, outletCode }) {
     setUrl(pathname);
   }, [pathname]);
 
-  const dispatch = useDispatch();
-  const { outlets, cancelOrder, transactions, contacts, isModalOpen } = useSelector((state) => state.counter);
-
   useEffect(() => {
     if (outletCode) {
       dispatch(checkAndfetchOutlets(outletCode));
       dispatch(checkAndfetchContacts(outletCode));
       dispatch(checkAndfetchTransactions({ outletCode, urlCode }));
     }
-  }, [outletCode, urlCode]);
+  }, [dispatch, outletCode, urlCode]);
 
   useEffect(() => {
     if (contacts?.length > 0) {
-      const instaContact = contacts.find((contact) => contact.contact_name.toLowerCase() === "whatsapp");
-      setTiktok(instaContact);
-
-      if (instaContact?.logo) {
-        setTiktokLogo(instaContact.logo);
+      const whatsappContact = contacts.find((c) => c.contact_name?.toLowerCase() === "whatsapp");
+      if (whatsappContact) {
+        setTiktok(whatsappContact);
+        setTiktokLogo(whatsappContact.logo || null);
       }
     }
   }, [contacts]);
 
   useEffect(() => {
-    if (!outletCode || !segment2) return;
-
-    socket.emit("joinRoom", { roomCode: segment2 });
-
-    socket.on("UserReceiveCanceled", (data) => {
-      if (data.roomCode === segment2) {
-        dispatch(setOrderCanceled(data));
-      }
-    });
-
-    socket.on("finishOrder", (response) => {
-      if (response.status === "success") {
-        toast.success("Successfully canceled order");
-      } else {
-        toast.error("Order cancellation failed");
-      }
-    });
-
-    return () => {
-      socket.off("UserReceiveCanceled");
-      socket.off("finishOrder");
-    };
-  }, [outletCode, segment2]);
+    if (socket && segment2) {
+      socket.emit("joinRoom", `room_${segment2}`);
+    }
+  }, [segment2]);
 
   useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    const handleUserReceiveConfirm = (data) => {
+      if (data.roomCode === segment2) {
+        if (data.status === "failed") {
+          dispatch(setOrderCanceled(data));
+        } else if (data.status === "onprocess") {
+          toast.info("Your order is on process");
+        } else if (data.status === "success") {
+          toast.success("Your order is finished");
+        }
+      }
+    };
 
+    socket.on("UserReceiveConfirm", handleUserReceiveConfirm);
+    return () => {
+      socket.off("UserReceiveConfirm", handleUserReceiveConfirm);
+    };
+  }, [segment2, dispatch]);
+
+  useEffect(() => {
+    document.body.style.overflow = isModalOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [isModalOpen]);
 
   const handleClickNotification = () => {
-    setShowCancelList((prev) => !prev);
-    if (!showCancelList) {
+    const nextShow = !showCancelList;
+
+    setShowCancelList(nextShow);
+
+    if (!nextShow) {
       dispatch(clearCanceledOrders());
+    } else if (cancelOrder.length > 0) {
+      cancelOrder.forEach((order) => {
+        toast.info(`Order in room ${order.number_table} is canceled.`);
+      });
     }
   };
 
@@ -97,10 +99,10 @@ export default function Header({ urlCode, outletCode }) {
       <div className="container mx-auto py-2">
         <div className="flex justify-between items-center p-2 relative">
           <div className="w-16 h-10">
-            {outlets && outlets?.logo ? (
-              <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${encodeURI(outlets && outlets.logo)}`} className="w-full h-full object-contain" alt="Logo" />
+            {outlets?.logo ? (
+              <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${encodeURI(outlets.logo)}`} className="w-full h-full object-contain" alt="Logo" />
             ) : (
-              <h1 className="text-sm text-yellow-700 font-pacifico">{(outlets && outlets?.outlet_name) || "MenuCafeKu"}</h1>
+              <h1 className="text-sm text-yellow-700 font-pacifico">{outlets?.outlet_name || "MenuCafeKu"}</h1>
             )}
           </div>
 
@@ -136,11 +138,11 @@ export default function Header({ urlCode, outletCode }) {
 
             {showCancelList && cancelOrder.length > 0 && (
               <div className="absolute right-4 top-20 bg-white border rounded shadow-md w-72 z-50 p-3 transition-all duration-300 ease-in-out opacity-100">
-                <h3 className="text-sm font-semibold mb-2">Order Canceled</h3>
+                <h3 className="text-sm font-semibold mb-2">Canceled Orders</h3>
                 <ul className="text-sm max-h-60 overflow-auto space-y-2">
                   {cancelOrder.map((order, idx) => (
                     <li key={idx} className="border-b pb-1">
-                      Order in room <strong>{order.room}</strong> is canceled.
+                      Order in room <strong>{order.number_table}</strong> is canceled.
                     </li>
                   ))}
                 </ul>

@@ -8,8 +8,6 @@ import socket from "@/lib/socket";
 const CancelButton = ({ room, transaction, transactionId, createdAt, status, redirect }) => {
   const dispatch = useDispatch();
   const [secondsLeft, setSecondsLeft] = useState(60);
-  const [result, setResult] = useState();
-  console.log(result, "cek");
 
   if (!transaction || !transaction.id_outlet) return null;
 
@@ -30,6 +28,7 @@ const CancelButton = ({ room, transaction, transactionId, createdAt, status, red
   }, [createdAt]);
 
   const handleCancel = () => {
+    socket.emit("joinCafe", transaction.id_outlet);
     socket.emit(
       "cancelOrderByUser",
       {
@@ -37,7 +36,7 @@ const CancelButton = ({ room, transaction, transactionId, createdAt, status, red
         outletCode: segment1,
         status: "failed",
         date: new Date(),
-        room,
+        number_table: room,
       },
       (response) => {
         if (response.status === "success") {
@@ -45,12 +44,16 @@ const CancelButton = ({ room, transaction, transactionId, createdAt, status, red
           dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
           dispatch(resetPesanan());
           dispatch(closeModal());
-          setResult(response);
         } else {
           toast.error("Order cancellation failed");
         }
       }
     );
+    socket.on("AdminReceiveCanceled", (response) => {
+      if (response.status === "success") {
+        localStorage.setItem("cancelOrder", response.data);
+      }
+    });
   };
 
   const isCancelable = Date.now() - new Date(createdAt).getTime() < 60000 && status !== "failed";

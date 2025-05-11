@@ -93,13 +93,13 @@ export default function Checkout() {
   };
 
   const sendOrder = async (values) => {
+    const [segment1, segment2] = urlCode.split("/");
     if (!data?.id || !data?.Tables?.[0]?.number_table) {
-      alert("Data table tidak lengkap!");
       return;
     }
 
     if (!pesanan.length) {
-      alert("Keranjang masih kosong!");
+      toast.error("Keranjang masih kosong!");
       return;
     }
 
@@ -107,7 +107,7 @@ export default function Checkout() {
       setLoading(true);
       const newTransaction = await createTransaction(values.byName, values.comment);
       if (!newTransaction?.data?.id) {
-        alert("Gagal membuat transaksi!");
+        toast.error("Gagal membuat transaksi!");
         return;
       }
       setTransaction(newTransaction.data);
@@ -115,6 +115,8 @@ export default function Checkout() {
       const payload = {
         id_outlet: data.id,
         number_table: data.Tables[0].number_table,
+        outletCode: segment1,
+        roomCode: segment2,
         outlet_name: data.outlet_name,
         by_name: values.byName,
         id_transaction: newTransaction.data.id,
@@ -129,6 +131,7 @@ export default function Checkout() {
         })),
       };
 
+      socket.emit("joinCafe", data.id);
       socket.emit("order", payload, (serverResponse) => {
         setResult(serverResponse);
       });
