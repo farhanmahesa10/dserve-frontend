@@ -22,6 +22,7 @@ export default function Checkout() {
   const [urlCode, setUrlCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [transaction, setTransaction] = useState(null);
+  const [order, setOrder] = useState(null);
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
@@ -99,7 +100,7 @@ export default function Checkout() {
     }
 
     if (!pesanan.length) {
-      toast.error("Keranjang masih kosong!");
+      toast.error("Keranjang still empty!");
       return;
     }
 
@@ -107,21 +108,21 @@ export default function Checkout() {
       setLoading(true);
       const newTransaction = await createTransaction(values.byName, values.comment);
       if (!newTransaction?.data?.id) {
-        toast.error("Gagal membuat transaksi!");
+        toast.error("failed make transaction!");
         return;
       }
       setTransaction(newTransaction.data);
 
       const payload = {
         id_outlet: data.id,
-        number_table: data.Tables[0].number_table,
         outletCode: segment1,
-        roomCode: segment2,
-        outlet_name: data.outlet_name,
         by_name: values.byName,
         id_transaction: newTransaction.data.id,
         total_pay: totalPrice,
+        number_table: data.Tables[0].number_table,
         status: "active",
+        outlet_name: data.outlet_name,
+        roomCode: segment2,
         orderData: pesanan.map((item) => ({
           id_menu: item.id_menu,
           title: item.title,
@@ -130,6 +131,8 @@ export default function Checkout() {
           total_price: item.qty * item.price,
         })),
       };
+      setOrder(payload);
+      localStorage.setItem("lastOrderData", JSON.stringify(payload));
 
       socket.emit("joinCafe", data.id);
       socket.emit("order", payload, (serverResponse) => {
@@ -137,7 +140,7 @@ export default function Checkout() {
       });
     } catch (error) {
       console.error("Error while sending order:", error);
-      alert("Terjadi kesalahan saat mengirim pesanan.");
+      toast.error("Terjadi kesalahan saat mengirim pesanan.");
     } finally {
       setLoading(false);
     }
@@ -227,7 +230,7 @@ export default function Checkout() {
             <p className="mt-2 text-gray-600">Order has been successfully created, we will send your order to your room.</p>
             <div className="flex gap-2 justify-end">
               {transaction?.id && transaction?.createdAt && transaction?.status === "active" && (
-                <CancelButton redirect={urlCode} transaction={transaction} transactionId={transaction.id} createdAt={transaction.createdAt} room={room} status={transaction.status} />
+                <CancelButton redirect={urlCode} totalPrice={totalPrice} order={order} transaction={transaction} transactionId={transaction.id} createdAt={transaction.createdAt} room={room} status={transaction.status} />
               )}
               <Link href={`/menu/${urlCode}`}>
                 <button

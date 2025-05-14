@@ -38,7 +38,7 @@ const Slider = ({ outletCode }) => {
         </Link>
       </div>
 
-      <div className="w-full lg:w-96 lg:mr-24 h-80 lg:h-auto">
+      <div className="w-full lg:w-1/2 lg:mr-24 h-80 lg:h-auto">
         <Swiper
           pagination={true}
           modules={[Pagination, Autoplay]}
