@@ -114,15 +114,18 @@ export default function Checkout() {
       setTransaction(newTransaction.data);
 
       const payload = {
+        id: newTransaction.data.id,
         id_outlet: data.id,
         outletCode: segment1,
-        by_name: values.byName,
-        id_transaction: newTransaction.data.id,
-        total_pay: totalPrice,
-        number_table: data.Tables[0].number_table,
-        status: "active",
         outlet_name: data.outlet_name,
-        roomCode: segment2,
+        by_name: values.byName,
+        total_pay: totalPrice,
+        status: "active",
+        date: new Date(),
+        Table: {
+          table_code: segment2,
+          number_table: data.Tables[0].number_table,
+        },
         orderData: pesanan.map((item) => ({
           id_menu: item.id_menu,
           title: item.title,

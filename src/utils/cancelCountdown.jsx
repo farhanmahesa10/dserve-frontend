@@ -8,9 +8,8 @@ import socket from "@/lib/socket";
 const CancelButton = ({ room, transaction, totalPrice, order, transactionId, createdAt, status, redirect }) => {
   const dispatch = useDispatch();
   const [secondsLeft, setSecondsLeft] = useState(60);
-  const ordered = JSON.stringify(order.orderData);
 
-  if (!transaction || !transaction.id_outlet) return null;
+  if (!transaction) return null;
 
   let segment1 = "";
   let segment2 = "";
@@ -30,34 +29,37 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
   }, [createdAt]);
 
   const handleCancel = () => {
-    const payload = {
-      id_outlet: transaction.id_outlet,
-      outletCode: segment1,
-      outlet_name: order.outlet_name,
-      by_name: transaction.byName,
-      id_transaction: transactionId,
-      total_pay: totalPrice,
-      status: "failed",
-      date: new Date(),
-      Table: {
-        table_code: segment2,
-        number_table: room,
-      },
-      orderData: ordered,
-    };
+    if (order) {
+      const ordered = JSON.stringify(order.orderData);
+      const payload = {
+        id: transactionId,
+        id_outlet: transaction.id_outlet,
+        outletCode: segment1,
+        outlet_name: order.outlet_name,
+        by_name: transaction.byName,
+        total_pay: totalPrice,
+        status: "failed",
+        date: new Date(),
+        Table: {
+          table_code: segment2,
+          number_table: room,
+        },
+        orderData: ordered,
+      };
 
-    socket.emit("joinCafe", transaction.id_outlet);
-    socket.emit("cancelOrderByUser", { payload }, (response) => {
-      if (response.status === "success") {
-        toast.success("Successfully canceled order");
-        localStorage.removeItem("lastOrderData");
-        dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
-        dispatch(resetPesanan());
-        dispatch(closeModal());
-      } else {
-        toast.error("Order cancellation failed");
-      }
-    });
+      socket.emit("joinCafe", transaction.id_outlet);
+      socket.emit("cancelOrderByUser", { payload }, (response) => {
+        if (response.status === "success") {
+          toast.success("Successfully canceled order");
+          localStorage.removeItem("lastOrderData");
+          dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
+          dispatch(resetPesanan());
+          dispatch(closeModal());
+        } else {
+          toast.error("Order cancellation failed");
+        }
+      });
+    }
     dispatch(resetPesanan());
   };
 
