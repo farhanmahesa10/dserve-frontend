@@ -5,11 +5,11 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import socket from "@/lib/socket";
 
-const CancelButton = ({ room, transaction, transactionId, createdAt, status, redirect }) => {
+const CancelButton = ({ room, transaction, totalPrice, order, transactionId, createdAt, status, redirect }) => {
   const dispatch = useDispatch();
   const [secondsLeft, setSecondsLeft] = useState(60);
 
-  if (!transaction || !transaction.id_outlet) return null;
+  if (!transaction) return null;
 
   let segment1 = "";
   let segment2 = "";
@@ -20,7 +20,8 @@ const CancelButton = ({ room, transaction, transactionId, createdAt, status, red
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const diff = 60000 - (Date.now() - new Date(createdAt).getTime());
+      const timeDiff = Date.now() - new Date(createdAt).getTime();
+      const diff = 60000 - timeDiff;
       setSecondsLeft(Math.max(Math.floor(diff / 1000), 0));
     }, 1000);
 
@@ -28,32 +29,38 @@ const CancelButton = ({ room, transaction, transactionId, createdAt, status, red
   }, [createdAt]);
 
   const handleCancel = () => {
-    socket.emit("joinCafe", transaction.id_outlet);
-    socket.emit(
-      "cancelOrderByUser",
-      {
-        roomCode: segment2,
+    if (order) {
+      const ordered = JSON.stringify(order.orderData);
+      const payload = {
+        id: transactionId,
+        id_outlet: transaction.id_outlet,
         outletCode: segment1,
+        outlet_name: order.outlet_name,
+        by_name: transaction.byName,
+        total_pay: totalPrice,
         status: "failed",
         date: new Date(),
-        number_table: room,
-      },
-      (response) => {
+        Table: {
+          table_code: segment2,
+          number_table: room,
+        },
+        orderData: ordered,
+      };
+
+      socket.emit("joinCafe", transaction.id_outlet);
+      socket.emit("cancelOrderByUser", { payload }, (response) => {
         if (response.status === "success") {
           toast.success("Successfully canceled order");
+          localStorage.removeItem("lastOrderData");
           dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
           dispatch(resetPesanan());
           dispatch(closeModal());
         } else {
           toast.error("Order cancellation failed");
         }
-      }
-    );
-    socket.on("AdminReceiveCanceled", (response) => {
-      if (response.status === "success") {
-        localStorage.setItem("cancelOrder", response.data);
-      }
-    });
+      });
+    }
+    dispatch(resetPesanan());
   };
 
   const isCancelable = Date.now() - new Date(createdAt).getTime() < 60000 && status !== "failed";

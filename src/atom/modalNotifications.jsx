@@ -11,12 +11,14 @@ const ModalNotification = ({ onClose }) => {
   const dispatch = useDispatch();
   const { transactions, outletCode } = useSelector((state) => state.counter);
   const [room, setRoom] = useState("");
+  const [order, setOrder] = useState();
 
   useEffect(() => {
     if (!params?.slug || params.slug.length < 2 || !outletCode) return;
 
     const lastTwoSegments = params.slug.slice(-2).join("/");
     dispatch(checkAndfetchTransactions({ outletCode, urlCode: lastTwoSegments }));
+    setOrder(JSON.parse(localStorage.getItem("lastOrderData")));
   }, [params, outletCode, dispatch]);
 
   useEffect(() => {
@@ -77,7 +79,7 @@ const ModalNotification = ({ onClose }) => {
               <h4 className="text-lg font-bold text-slate-700">Total</h4>
               <span className="text-xl font-semibold text-blue-600">{formatToRupiah(getTotalHarga(trx.Orders))}</span>
             </div>
-            <CancelButton redirect={params.slug.slice(-2).join("/")} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
+            <CancelButton redirect={params.slug.slice(-2).join("/")} totalPrice={getTotalHarga(trx.Orders)} order={order} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
           </div>
         ))
       )}

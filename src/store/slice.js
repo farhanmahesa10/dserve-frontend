@@ -13,7 +13,7 @@ const initialState = {
   categories: [],
   allMenus: [],
   outletCode: {},
-  cancelOrder: [],
+  cancelOrder: {},
   menusUpdatedAt: null,
   transactionsUpdatedAt: null,
   contactsUpdatedAt: null,
@@ -84,10 +84,10 @@ export const counterSlice = createSlice({
       state.error = null;
     },
     clearCanceledOrders: (state) => {
-      state.cancelOrder = [];
+      state.cancelOrder = {};
     },
     setOrderCanceled: (state, action) => {
-      state.cancelOrder.push(action.payload);
+      state.cancelOrder = action.payload;
     },
     setOutletCode: (state, action) => {
       state.outletCode = action.payload;

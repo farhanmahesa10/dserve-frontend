@@ -6,28 +6,31 @@ import { usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAndfetchOutlets } from "@/utils/checkOutlet";
 import { checkAndfetchContacts } from "@/utils/checkContacts";
-import ModalNotification from "@/atom/modalNotifications";
 import { checkAndfetchTransactions } from "@/utils/checkTransactions";
-import { GrTransaction } from "react-icons/gr";
 import { closeModal, openModal, setOrderCanceled, clearCanceledOrders } from "@/store/slice";
-import socket from "@/lib/socket";
+import { GrTransaction } from "react-icons/gr";
 import { IoMdNotificationsOutline } from "react-icons/io";
+import { IoChatboxEllipsesOutline } from "react-icons/io5";
+import { MdOutlineSmsFailed } from "react-icons/md";
+import ModalNotification from "@/atom/modalNotifications";
+import socket from "@/lib/socket";
 import { toast } from "react-toastify";
+import { FormatDateAndTime } from "@/utils/formatDAte";
 
 export default function Header({ urlCode, outletCode }) {
   const pathname = usePathname();
   const dispatch = useDispatch();
-
   const { outlets, cancelOrder, transactions, contacts, isModalOpen } = useSelector((state) => state.counter);
 
-  const [url, setUrl] = useState("");
-  const [tiktok, setTiktok] = useState(null);
-  const [tiktokLogo, setTiktokLogo] = useState(null);
+  const [currentUrl, setCurrentUrl] = useState("");
+  const [contactInfo, setContactInfo] = useState(null);
+  const [contactLogo, setContactLogo] = useState(null);
   const [showCancelList, setShowCancelList] = useState(false);
+
   const [segment1, segment2] = urlCode.split("/");
 
   useEffect(() => {
-    setUrl(pathname);
+    setCurrentUrl(pathname);
   }, [pathname]);
 
   useEffect(() => {
@@ -40,10 +43,10 @@ export default function Header({ urlCode, outletCode }) {
 
   useEffect(() => {
     if (contacts?.length > 0) {
-      const whatsappContact = contacts.find((c) => c.contact_name?.toLowerCase() === "whatsapp");
-      if (whatsappContact) {
-        setTiktok(whatsappContact);
-        setTiktokLogo(whatsappContact.logo || null);
+      const waContact = contacts.find((c) => c.contact_name?.toLowerCase() === "whatsapp");
+      if (waContact) {
+        setContactInfo(waContact);
+        setContactLogo(waContact.logo || null);
       }
     }
   }, [contacts]);
@@ -56,12 +59,15 @@ export default function Header({ urlCode, outletCode }) {
 
   useEffect(() => {
     const handleUserReceiveConfirm = (data) => {
-      if (data.roomCode === segment2) {
-        if (data.status === "failed") {
+      const tableCode = data?.data?.Table?.table_code;
+      const status = data?.data?.status;
+
+      if (tableCode === segment2) {
+        if (status === "failed") {
           dispatch(setOrderCanceled(data));
-        } else if (data.status === "onprocess") {
+        } else if (status === "onprocess") {
           toast.info("Your order is on process");
-        } else if (data.status === "success") {
+        } else if (status === "success") {
           toast.success("Your order is finished");
         }
       }
@@ -81,18 +87,11 @@ export default function Header({ urlCode, outletCode }) {
   }, [isModalOpen]);
 
   const handleClickNotification = () => {
-    const nextShow = !showCancelList;
-
-    setShowCancelList(nextShow);
-
-    if (!nextShow) {
-      dispatch(clearCanceledOrders());
-    } else if (cancelOrder.length > 0) {
-      cancelOrder.forEach((order) => {
-        toast.info(`Order in room ${order.number_table} is canceled.`);
-      });
-    }
+    const willShow = !showCancelList;
+    setShowCancelList(willShow);
+    if (!willShow) dispatch(clearCanceledOrders());
   };
+  const notificationOrders = cancelOrder?.data?.Orders || [];
 
   return (
     <header className="bg-white shadow z-50 fixed w-full">
@@ -108,17 +107,17 @@ export default function Header({ urlCode, outletCode }) {
 
           <nav className="flex gap-4">
             <Link href={`/${urlCode || ""}`}>
-              <span className={`${url === `/${urlCode || ""}` ? "text-yellow-700" : "text-slate-400"} capitalize font-semibold py-2 hover:text-yellow-600`}>Home</span>
+              <span className={`${currentUrl === `/${urlCode}` ? "text-yellow-700" : "text-slate-400"} capitalize font-semibold py-2 hover:text-yellow-600`}>Home</span>
             </Link>
             <Link href={`/menu/${urlCode || ""}`}>
-              <span className={`${url === `/menu/${urlCode || ""}` ? "text-yellow-700" : "text-slate-400"} capitalize font-semibold py-2 hover:text-yellow-600`}>Menu</span>
+              <span className={`${currentUrl === `/menu/${urlCode}` ? "text-yellow-700" : "text-slate-400"} capitalize font-semibold py-2 hover:text-yellow-600`}>Menu</span>
             </Link>
           </nav>
 
           <div className="flex items-center gap-4 relative">
-            {tiktok?.link && tiktokLogo ? (
-              <a href={tiktok.link} target="_blank" rel="noopener noreferrer" className="w-8 h-8 sm:w-10 sm:h-10">
-                <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${tiktokLogo}`} className="w-full h-full object-contain" alt="whatsapp" />
+            {contactInfo?.link && contactLogo ? (
+              <a href={contactInfo.link} target="_blank" rel="noopener noreferrer" className="w-8 h-8 sm:w-10 sm:h-10">
+                <img src={`${process.env.NEXT_PUBLIC_PHOTOS}/${contactLogo}`} className="w-full h-full object-contain" alt="Contact" />
               </a>
             ) : (
               <h1 className="text-base text-yellow-700 font-pacifico hidden sm:block">Contact</h1>
@@ -132,20 +131,38 @@ export default function Header({ urlCode, outletCode }) {
 
               <div className="relative cursor-pointer" onClick={handleClickNotification}>
                 <IoMdNotificationsOutline className="text-2xl" />
-                {cancelOrder.length > 0 && <span className="w-5 h-5 bg-red-600 rounded-full text-white text-xs flex items-center justify-center absolute -top-1 -right-1">{cancelOrder.length}</span>}
+                {notificationOrders.length > 0 && <span className="w-5 h-5 bg-red-600 rounded-full text-white text-xs flex items-center justify-center absolute -top-1 -right-1">{notificationOrders.length}</span>}
               </div>
             </div>
 
-            {showCancelList && cancelOrder.length > 0 && (
-              <div className="absolute right-4 top-20 bg-white border rounded shadow-md w-72 z-50 p-3 transition-all duration-300 ease-in-out opacity-100">
-                <h3 className="text-sm font-semibold mb-2">Canceled Orders</h3>
-                <ul className="text-sm max-h-60 overflow-auto space-y-2">
-                  {cancelOrder.map((order, idx) => (
-                    <li key={idx} className="border-b pb-1">
-                      Order in room <strong>{order.number_table}</strong> is canceled.
-                    </li>
-                  ))}
-                </ul>
+            {showCancelList && (
+              <div className="absolute -right-7 top-[50px] w-80 max-h-72 bg-white border border-gray-300 shadow-lg rounded-lg z-20">
+                <div className="p-2">
+                  <h3 className="font-semibold mb-2">Notification Orders</h3>
+                  {notificationOrders && notificationOrders.length === 0 ? (
+                    <p className="text-sm text-gray-500">No notification yet.</p>
+                  ) : (
+                    <div className="mt-2 max-h-52 overflow-y-auto custom-scrollbar space-y-2">
+                      {notificationOrders &&
+                        notificationOrders.map((item, index) => (
+                          <div key={index} className={`flex items-start gap-3 p-2 rounded-xl shadow-sm hover:bg-gray-50 transition ${!item.seen ? "bg-gray-200/70" : "bg-white"}`}>
+                            <div className="flex-shrink-0">
+                              <div className={`w-8 h-8 flex items-center justify-center rounded-full text-lg ${item.status === "failed" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>
+                                {item.status === "failed" ? <MdOutlineSmsFailed /> : <IoChatboxEllipsesOutline />}
+                              </div>
+                            </div>
+
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-700">
+                                <span className="font-semibold text-black">Room {cancelOrder?.data?.Table?.number_table}</span> {cancelOrder?.data?.status === "failed" ? "cancel" : ""} order
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">{FormatDateAndTime(item.date)}</p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
