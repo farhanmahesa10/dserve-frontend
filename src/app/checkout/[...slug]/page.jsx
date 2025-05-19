@@ -23,6 +23,7 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [transaction, setTransaction] = useState(null);
   const [order, setOrder] = useState(null);
+  const [checkStatus, setCheckStatus] = useState();
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
@@ -34,7 +35,6 @@ export default function Checkout() {
       setError(true);
       return;
     }
-
     const lastTwoSegments = params.slug.slice(-2).join("/");
     setUrlCode(lastTwoSegments);
 
@@ -61,9 +61,26 @@ export default function Checkout() {
   }, [data?.id]);
 
   useEffect(() => {
-    socket.on("newOrder", (data) => console.log("newOrder:", data));
+    socket.on("newOrder", (data) => console.log("newOrder:", "ce"));
     return () => socket.off("newOrder");
   }, []);
+
+  useEffect(() => {
+    if (socket && urlCode) {
+      socket.emit("joinRoom", `room_${urlCode}`);
+    }
+  }, [urlCode]);
+
+  useEffect(() => {
+    const handleUserReceiveConfirm = (data) => {
+      setCheckStatus(data?.data?.status);
+    };
+
+    socket.on("UserReceiveConfirm", handleUserReceiveConfirm);
+    return () => {
+      socket.off("UserReceiveConfirm", handleUserReceiveConfirm);
+    };
+  }, [urlCode, dispatch]);
 
   const totalPrice = pesanan.reduce((acc, item) => acc + item.price * item.qty, 0);
 
@@ -161,6 +178,7 @@ export default function Checkout() {
       })
     );
   };
+  console.log(checkStatus, "cek ini");
 
   if (error) return <Error />;
   return (
@@ -233,7 +251,9 @@ export default function Checkout() {
             <p className="mt-2 text-gray-600">Order has been successfully created, we will send your order to your room.</p>
             <div className="flex gap-2 justify-end">
               {transaction?.id && transaction?.createdAt && transaction?.status === "active" && (
-                <CancelButton redirect={urlCode} totalPrice={totalPrice} order={order} transaction={transaction} transactionId={transaction.id} createdAt={transaction.createdAt} room={room} status={transaction.status} />
+                <div className={`${["success", "onprocess", "failed"].includes(checkStatus) ? "hidden" : ""}`}>
+                  <CancelButton redirect={urlCode} totalPrice={totalPrice} order={order} transaction={transaction} transactionId={transaction.id} createdAt={transaction.createdAt} room={room} status={transaction.status} />
+                </div>
               )}
               <Link href={`/menu/${urlCode}`}>
                 <button
