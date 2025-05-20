@@ -39,12 +39,12 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
         by_name: transaction.byName,
         total_pay: totalPrice,
         status: "failed",
-        date: new Date(),
+        createdAt: new Date(),
         Table: {
           table_code: segment2,
           number_table: room,
         },
-        orderData: ordered,
+        Orders: ordered,
       };
 
       socket.emit("joinCafe", transaction.id_outlet);

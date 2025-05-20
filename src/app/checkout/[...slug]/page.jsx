@@ -137,8 +137,8 @@ export default function Checkout() {
         outlet_name: data.outlet_name,
         by_name: values.byName,
         total_pay: totalPrice,
-        status: "active",
-        date: new Date(),
+        status: "pra-active",
+        createdAt: new Date(),
         Table: {
           table_code: segment2,
           number_table: data.Tables[0].number_table,
