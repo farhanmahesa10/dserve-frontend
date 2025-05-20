@@ -5,6 +5,7 @@ import { checkAndfetchTransactions } from "@/utils/checkTransactions";
 import CancelButton from "@/utils/cancelCountdown";
 import { useParams } from "next/navigation";
 import { FaTimesCircle } from "react-icons/fa";
+import socket from "@/lib/socket";
 
 const ModalNotification = ({ onClose }) => {
   const params = useParams();
@@ -12,14 +13,16 @@ const ModalNotification = ({ onClose }) => {
   const { transactions, outletCode } = useSelector((state) => state.counter);
   const [room, setRoom] = useState("");
   const [order, setOrder] = useState();
+  const [checkStatus, setCheckStatus] = useState();
+  let lastTwoSegments;
 
   useEffect(() => {
     if (!params?.slug || params.slug.length < 2 || !outletCode) return;
 
-    const lastTwoSegments = params.slug.slice(-2).join("/");
+    lastTwoSegments = params.slug.slice(-2).join("/");
     dispatch(checkAndfetchTransactions({ outletCode, urlCode: lastTwoSegments }));
     setOrder(JSON.parse(localStorage.getItem("lastOrderData")));
-  }, [params, outletCode, dispatch]);
+  }, [params, outletCode, dispatch, checkStatus]);
 
   useEffect(() => {
     if (transactions.length > 0 && transactions[0].Table?.number_table) {
@@ -37,6 +40,23 @@ const ModalNotification = ({ onClose }) => {
   };
 
   const sortedTransactions = [...transactions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  useEffect(() => {
+    if (socket && lastTwoSegments) {
+      socket.emit("joinRoom", `room_${lastTwoSegments}`);
+    }
+  }, [lastTwoSegments]);
+
+  useEffect(() => {
+    const handleUserReceiveConfirm = (data) => {
+      setCheckStatus(data?.data?.status);
+    };
+
+    socket.on("UserReceiveConfirm", handleUserReceiveConfirm);
+    return () => {
+      socket.off("UserReceiveConfirm", handleUserReceiveConfirm);
+    };
+  }, [lastTwoSegments, dispatch]);
 
   return (
     <div className="fixed z-50 h-screen top-0 left-0 w-full bg-slate-50 shadow-md p-4 overflow-y-auto">
@@ -79,7 +99,9 @@ const ModalNotification = ({ onClose }) => {
               <h4 className="text-lg font-bold text-slate-700">Total</h4>
               <span className="text-xl font-semibold text-blue-600">{formatToRupiah(getTotalHarga(trx.Orders))}</span>
             </div>
-            <CancelButton redirect={params.slug.slice(-2).join("/")} totalPrice={getTotalHarga(trx.Orders)} order={order} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
+            <div className={`${["success", "onprocess", "failed"].includes(checkStatus) ? "hidden" : ""}`}>
+              <CancelButton redirect={params.slug.slice(-2).join("/")} totalPrice={getTotalHarga(trx.Orders)} order={order} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
+            </div>
           </div>
         ))
       )}

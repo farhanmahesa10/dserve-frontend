@@ -16,6 +16,7 @@ import ModalNotification from "@/atom/modalNotifications";
 import socket from "@/lib/socket";
 import { toast } from "react-toastify";
 import { FormatDateAndTime } from "@/utils/formatDAte";
+import { formatToRupiah } from "@/atom/formatRupiah";
 
 export default function Header({ urlCode, outletCode }) {
   const pathname = usePathname();
@@ -26,6 +27,8 @@ export default function Header({ urlCode, outletCode }) {
   const [contactInfo, setContactInfo] = useState(null);
   const [contactLogo, setContactLogo] = useState(null);
   const [showCancelList, setShowCancelList] = useState(false);
+  const [hoveredNotification, setHoveredNotification] = useState(null);
+  console.log(hoveredNotification, "cek data ini ");
 
   const [segment1, segment2] = urlCode.split("/");
 
@@ -92,6 +95,8 @@ export default function Header({ urlCode, outletCode }) {
     if (!willShow) dispatch(clearCanceledOrders());
   };
   const notificationOrders = cancelOrder?.data?.Orders || [];
+  const data = cancelOrder?.data;
+  console.log(notificationOrders.length === 0, "cek order");
 
   return (
     <header className="bg-white shadow z-50 fixed w-full">
@@ -142,24 +147,54 @@ export default function Header({ urlCode, outletCode }) {
                   {notificationOrders && notificationOrders.length === 0 ? (
                     <p className="text-sm text-gray-500">No notification yet.</p>
                   ) : (
-                    <div className="mt-2 max-h-52 overflow-y-auto custom-scrollbar space-y-2">
-                      {notificationOrders &&
-                        notificationOrders.map((item, index) => (
-                          <div key={index} className={`flex items-start gap-3 p-2 rounded-xl shadow-sm hover:bg-gray-50 transition ${!item.seen ? "bg-gray-200/70" : "bg-white"}`}>
+                    <div className="grid grid-cols-2 gap-4">
+                      {" "}
+                      <div className="mt-2 max-h-52 overflow-y-auto custom-scrollbar space-y-2">
+                        {notificationOrders?.map((item, index) => (
+                          <div
+                            key={index}
+                            className={`flex items-start gap-3 p-2 rounded-xl shadow-sm hover:bg-gray-50 transition ${!item.seen ? "bg-gray-200/70" : "bg-white"}`}
+                            onMouseEnter={() => setHoveredNotification(data)}
+                            onMouseLeave={() => setHoveredNotification(null)}
+                          >
                             <div className="flex-shrink-0">
-                              <div className={`w-8 h-8 flex items-center justify-center rounded-full text-lg ${item.status === "failed" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>
+                              <div className={`w-8 h-8 flex items-center justify-center rounded-full text-lg ${item.status === "failed" ? "bg-red-100 text-red-600" : "bg-red-100 text-red-600"}`}>
                                 {item.status === "failed" ? <MdOutlineSmsFailed /> : <IoChatboxEllipsesOutline />}
                               </div>
                             </div>
-
                             <div className="flex-1">
                               <p className="text-sm text-gray-700">
-                                <span className="font-semibold text-black">Room {cancelOrder?.data?.Table?.number_table}</span> {cancelOrder?.data?.status === "failed" ? "cancel" : ""} order
+                                <span className="font-semibold text-black">Room {data?.Table?.number_table}</span> {item?.status === "failed" ? "cancel" : ""} Canceled
                               </p>
                               <p className="text-xs text-gray-500 mt-1">{FormatDateAndTime(item.date)}</p>
                             </div>
                           </div>
                         ))}
+                      </div>
+                      <div className="bg-white p-4 border rounded-xl min-h-52">
+                        {hoveredNotification ? (
+                          <>
+                            <h4 className="font-semibold text-slate-700 mb-2">Order Room {hoveredNotification?.Table?.number_table}</h4>
+                            {hoveredNotification?.Orders?.length > 0 ? (
+                              hoveredNotification.Orders.map((order, i) => (
+                                <div key={i} className="text-sm mb-2 border-b pb-1">
+                                  <div className="flex justify-between">
+                                    <span>{order.Menu?.title}</span>
+                                    <span>{order.qty}x</span>
+                                  </div>
+                                  <div className="text-gray-500 text-xs">
+                                    {formatToRupiah(order.Menu?.price)} / Total: {formatToRupiah(order.Menu?.price * order.qty)}
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-400">Order not found.</p>
+                            )}
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
