@@ -28,7 +28,6 @@ export default function Header({ urlCode, outletCode }) {
   const [contactLogo, setContactLogo] = useState(null);
   const [showCancelList, setShowCancelList] = useState(false);
   const [hoveredNotification, setHoveredNotification] = useState(null);
-  console.log(hoveredNotification, "cek data ini ");
 
   const [segment1, segment2] = urlCode.split("/");
 
@@ -96,7 +95,6 @@ export default function Header({ urlCode, outletCode }) {
   };
   const notificationOrders = cancelOrder?.data?.Orders || [];
   const data = cancelOrder?.data;
-  console.log(notificationOrders.length === 0, "cek order");
 
   return (
     <header className="bg-white shadow z-50 fixed w-full">

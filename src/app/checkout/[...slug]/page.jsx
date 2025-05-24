@@ -61,7 +61,7 @@ export default function Checkout() {
   }, [data?.id]);
 
   useEffect(() => {
-    socket.on("newOrder", (data) => console.log("newOrder:", "ce"));
+    socket.on("newOrder", (data) => console.log("newOrder:", data));
     return () => socket.off("newOrder");
   }, []);
 
@@ -94,7 +94,7 @@ export default function Checkout() {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/create`, {
         id_outlet: data.id,
         id_table: data.Tables[0].id,
-        status: "active",
+        status: "pra-active",
         pays_method: "cash",
         by_name: byName || "Guest",
         comment: comment || null,
@@ -143,7 +143,11 @@ export default function Checkout() {
           table_code: segment2,
           number_table: data.Tables[0].number_table,
         },
-        orderData: pesanan.map((item) => ({
+        Orders: pesanan.map((item) => ({
+          Menu: {
+            title: item.title,
+            price: item.price,
+          },
           id_menu: item.id_menu,
           title: item.title,
           price: item.price,
@@ -250,8 +254,8 @@ export default function Checkout() {
             <h2 className="text-xl font-bold text-start">{result.message}!</h2>
             <p className="mt-2 text-gray-600">Order has been successfully created, we will send your order to your room.</p>
             <div className="flex gap-2 justify-end">
-              {transaction?.id && transaction?.createdAt && transaction?.status === "active" && (
-                <div className={`${["success", "onprocess", "failed"].includes(checkStatus) ? "hidden" : ""}`}>
+              {transaction?.id && transaction?.createdAt && transaction?.status === "pra-active" && (
+                <div className={`${["success", "onprocess", "failed", "active"].includes(checkStatus) ? "hidden" : ""}`}>
                   <CancelButton redirect={urlCode} totalPrice={totalPrice} order={order} transaction={transaction} transactionId={transaction.id} createdAt={transaction.createdAt} room={room} status={transaction.status} />
                 </div>
               )}

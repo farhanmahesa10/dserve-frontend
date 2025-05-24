@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { increment, setOutletCode } from "@/store/slice";
+import { fetchAllMenus, increment, setOutletCode } from "@/store/slice";
 import Error from "@/app/component/error/error";
 import Header from "@/app/component/header/header";
 import HeaderMenu from "@/app/component/header/headerMenu";
@@ -13,6 +13,7 @@ import Footer from "@/app/component/footer/footer";
 import axios from "axios";
 import Card from "@/utils/card";
 import { checkAndFetchAllMenus } from "@/utils/checkAllMenus";
+import socket from "@/lib/socket";
 
 export default function Menu() {
   const params = useParams();
@@ -23,9 +24,13 @@ export default function Menu() {
   const [pageError, setPageError] = useState(false);
   const [urlCode, setUrlCode] = useState("");
   const [code, setCode] = useState();
+  const [updateMenu, setUpdateMenu] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // console.log(updateMenu, "cek");
 
   const id = searchParams.get("id");
+  // console.log(data, "cek id");
+
   const { allMenus, menus, statusAllMenus, statusMenus, pesanan } = useSelector((state) => state.counter);
 
   useEffect(() => {
@@ -41,20 +46,44 @@ export default function Menu() {
     axios
       .get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/table/checktablecode/${lastTwoSegments}`)
       .then((response) => {
-        setData(response.data);
+        setData(response.data.data.id);
       })
       .catch((err) => {
         setPageError(true);
         console.error("Fetch error:", err);
       });
   }, [params]);
+  // console.log(code, "outlet");
+
+  useEffect(() => {
+    if (socket.connected && code) {
+      socket.emit("joinCafe", code);
+      console.log("bala bala");
+    }
+  }, [code]);
+
+  useEffect(() => {
+    const handleUpdateMenu = (payload) => {
+      console.log("DARI SERVER:", payload);
+
+      if (payload?.data?.updatedAt) {
+        setUpdateMenu(payload.data.updatedAt);
+      }
+    };
+
+    socket.on("latestMenu", handleUpdateMenu);
+    return () => {
+      socket.off("latestMenu", handleUpdateMenu);
+      socket.off("joinCafe", code);
+    };
+  }, [code, updateMenu]);
 
   useEffect(() => {
     if (code) {
       dispatch(setOutletCode(code));
       dispatch(checkAndFetchAllMenus(code));
     }
-  }, [dispatch, code]);
+  }, [dispatch, code, updateMenu]);
 
   useEffect(() => {
     if (id && allMenus.length) {

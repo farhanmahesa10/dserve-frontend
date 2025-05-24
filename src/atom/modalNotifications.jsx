@@ -99,7 +99,7 @@ const ModalNotification = ({ onClose }) => {
               <h4 className="text-lg font-bold text-slate-700">Total</h4>
               <span className="text-xl font-semibold text-blue-600">{formatToRupiah(getTotalHarga(trx.Orders))}</span>
             </div>
-            <div className={`${["success", "onprocess", "failed"].includes(checkStatus) ? "hidden" : ""}`}>
+            <div className={`${["success", "onprocess", "failed", "active"].includes(checkStatus) ? "hidden" : ""}`}>
               <CancelButton redirect={params.slug.slice(-2).join("/")} totalPrice={getTotalHarga(trx.Orders)} order={order} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
             </div>
           </div>

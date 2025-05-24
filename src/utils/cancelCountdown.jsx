@@ -4,6 +4,7 @@ import { closeModal, resetPesanan, updateTransactions } from "@/store/slice";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import socket from "@/lib/socket";
+import axios from "axios";
 
 const CancelButton = ({ room, transaction, totalPrice, order, transactionId, createdAt, status, redirect }) => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
     return () => clearInterval(interval);
   }, [createdAt]);
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (order) {
       const ordered = JSON.stringify(order.orderData);
       const payload = {
@@ -46,6 +47,10 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
         },
         Orders: ordered,
       };
+      console.log(transactionId, "cek log");
+
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${transactionId}`, { status: "failed" });
+      console.log(response, "cek response");
 
       socket.emit("joinCafe", transaction.id_outlet);
       socket.emit("cancelOrderByUser", { payload }, (response) => {
@@ -53,6 +58,7 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
           toast.success("Successfully canceled order");
           localStorage.removeItem("lastOrderData");
           dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
+
           dispatch(resetPesanan());
           dispatch(closeModal());
         } else {
