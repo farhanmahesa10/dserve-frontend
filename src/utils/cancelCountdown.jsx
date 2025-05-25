@@ -49,10 +49,9 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
       };
       console.log(transactionId, "cek log");
 
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${transactionId}`, { status: "failed" });
-      console.log(response, "cek response");
+      // const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${transactionId}`, { status: "failed" });
+      // console.log(response, "cek response");
 
-      socket.emit("joinCafe", transaction.id_outlet);
       socket.emit("cancelOrderByUser", { payload }, (response) => {
         if (response.status === "success") {
           toast.success("Successfully canceled order");

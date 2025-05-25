@@ -24,6 +24,7 @@ export default function Checkout() {
   const [transaction, setTransaction] = useState(null);
   const [order, setOrder] = useState(null);
   const [checkStatus, setCheckStatus] = useState();
+  const [segment1, segment2] = urlCode.split("/");
 
   const dispatch = useDispatch();
   const pesanan = useSelector((state) => state.counter.pesanan);
@@ -56,20 +57,20 @@ export default function Checkout() {
 
   useEffect(() => {
     if (!data?.id) return;
-    socket.emit("joinCafe", data.id);
-    return () => socket.off("joinCafe");
+    socket.emit("joinCafe", `${segment1}`);
   }, [data?.id]);
 
   useEffect(() => {
     socket.on("newOrder", (data) => console.log("newOrder:", data));
     return () => socket.off("newOrder");
   }, []);
+  console.log(socket.id, "cek socket");
 
-  useEffect(() => {
-    if (socket && urlCode) {
-      socket.emit("joinRoom", `room_${urlCode}`);
-    }
-  }, [urlCode]);
+  // useEffect(() => {
+  //   if (socket && urlCode) {
+  //     socket.emit("joinRoom", `${urlCode}`);
+  //   }
+  // }, [urlCode]);
 
   useEffect(() => {
     const handleUserReceiveConfirm = (data) => {
@@ -111,7 +112,6 @@ export default function Checkout() {
   };
 
   const sendOrder = async (values) => {
-    const [segment1, segment2] = urlCode.split("/");
     if (!data?.id || !data?.Tables?.[0]?.number_table) {
       return;
     }
@@ -158,7 +158,6 @@ export default function Checkout() {
       setOrder(payload);
       localStorage.setItem("lastOrderData", JSON.stringify(payload));
 
-      socket.emit("joinCafe", data.id);
       socket.emit("order", payload, (serverResponse) => {
         setResult(serverResponse);
       });

@@ -55,7 +55,7 @@ export default function Header({ urlCode, outletCode }) {
 
   useEffect(() => {
     if (socket && segment2) {
-      socket.emit("joinRoom", `room_${segment2}`);
+      socket.emit("joinRoom", `${segment2}`);
     }
   }, [segment2]);
 

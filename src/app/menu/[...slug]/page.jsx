@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllMenus, increment, setOutletCode } from "@/store/slice";
+import { fetchAllMenus, fetchMenusBestSeller, increment, setOutletCode } from "@/store/slice";
 import Error from "@/app/component/error/error";
 import Header from "@/app/component/header/header";
 import HeaderMenu from "@/app/component/header/headerMenu";
@@ -24,7 +24,7 @@ export default function Menu() {
   const [pageError, setPageError] = useState(false);
   const [urlCode, setUrlCode] = useState("");
   const [code, setCode] = useState();
-  const [updateMenu, setUpdateMenu] = useState();
+  // const [updateMenu, setUpdateMenu] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   // console.log(updateMenu, "cek");
 
@@ -42,23 +42,22 @@ export default function Menu() {
     const lastTwoSegments = params.slug.slice(-2).join("/");
     setUrlCode(lastTwoSegments);
     setCode(params.slug[0]);
-
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/table/checktablecode/${lastTwoSegments}`)
-      .then((response) => {
-        setData(response.data.data.id);
-      })
-      .catch((err) => {
-        setPageError(true);
-        console.error("Fetch error:", err);
-      });
+    if (params) {
+      axios
+        .get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/table/checktablecode/${lastTwoSegments}`)
+        .then((response) => {
+          setData(response.data.data.id);
+        })
+        .catch((err) => {
+          setPageError(true);
+          console.error("Fetch error:", err);
+        });
+    }
   }, [params]);
   // console.log(code, "outlet");
-
   useEffect(() => {
-    if (socket.connected && code) {
-      socket.emit("joinCafe", code);
-      console.log("bala bala");
+    if (socket && code) {
+      socket.emit("joinCafe", `${code}`);
     }
   }, [code]);
 
@@ -67,23 +66,25 @@ export default function Menu() {
       console.log("DARI SERVER:", payload);
 
       if (payload?.data?.updatedAt) {
-        setUpdateMenu(payload.data.updatedAt);
+        setTimeout(() => {
+          dispatch(fetchAllMenus(code));
+          dispatch(fetchMenusBestSeller(code));
+        }, 5000);
       }
     };
 
     socket.on("latestMenu", handleUpdateMenu);
     return () => {
       socket.off("latestMenu", handleUpdateMenu);
-      socket.off("joinCafe", code);
     };
-  }, [code, updateMenu]);
+  }, [code, dispatch]);
 
   useEffect(() => {
     if (code) {
       dispatch(setOutletCode(code));
       dispatch(checkAndFetchAllMenus(code));
     }
-  }, [dispatch, code, updateMenu]);
+  }, [dispatch, code]);
 
   useEffect(() => {
     if (id && allMenus.length) {

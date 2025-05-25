@@ -18,7 +18,7 @@ const Card = ({ menu, onIncrement }) => {
         </div>
         <div className="flex justify-between pe-2  items-center w-full md:mt-4 md:pb-2">
           <p className="text-slate-700 text-sm md:text-base font-semibold ">{formatToRupiah(menu.price)}</p>
-          <div className="flex items-center justify-center gap-2  ">{menu.status === "Ready" ? <CounterButton id_menu={menu.id} onIncrement={onIncrement} /> : <p className="text-red-500">Sold Out</p>}</div>
+          <div className="flex items-center justify-center gap-2  ">{menu.status === "Ready" ? <CounterButton id_menu={menu.id} onIncrement={onIncrement} /> : <p className="text-red-500"> Sold Out</p>}</div>
         </div>
       </div>
     </div>
