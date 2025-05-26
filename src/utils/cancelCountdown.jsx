@@ -47,23 +47,21 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
         },
         Orders: ordered,
       };
-      console.log(transactionId, "cek log");
+      const response = await dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" })).unwrap();
+      console.log(response, "Sukses update");
+      if (response.status === "failed") {
+        socket.emit("cancelOrderByUser", { payload }, (response) => {
+          if (response.status === "success") {
+            toast.success("Successfully canceled order");
+            localStorage.removeItem("lastOrderData");
 
-      // const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${transactionId}`, { status: "failed" });
-      // console.log(response, "cek response");
-
-      socket.emit("cancelOrderByUser", { payload }, (response) => {
-        if (response.status === "success") {
-          toast.success("Successfully canceled order");
-          localStorage.removeItem("lastOrderData");
-          dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
-
-          dispatch(resetPesanan());
-          dispatch(closeModal());
-        } else {
-          toast.error("Order cancellation failed");
-        }
-      });
+            dispatch(resetPesanan());
+            dispatch(closeModal());
+          } else {
+            toast.error("Order cancellation failed");
+          }
+        });
+      }
     }
     dispatch(resetPesanan());
   };

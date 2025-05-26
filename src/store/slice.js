@@ -48,7 +48,7 @@ export const updateTransactions = createAsyncThunk("counter/updateTransactions",
   console.log(response, "cek slice");
 
   dispatch(fetchTransactions(redirect));
-  return response.data;
+  return await response.data.data;
 });
 export const fetchEvents = createAsyncThunk("counter/fetchEvents", async (outletCode) => {
   const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/event/showbyoutletcode/${outletCode}`);

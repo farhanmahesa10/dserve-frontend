@@ -64,7 +64,6 @@ export default function Checkout() {
     socket.on("newOrder", (data) => console.log("newOrder:", data));
     return () => socket.off("newOrder");
   }, []);
-  console.log(socket.id, "cek socket");
 
   // useEffect(() => {
   //   if (socket && urlCode) {
@@ -181,7 +180,6 @@ export default function Checkout() {
       })
     );
   };
-  console.log(checkStatus, "cek ini");
 
   if (error) return <Error />;
   return (
