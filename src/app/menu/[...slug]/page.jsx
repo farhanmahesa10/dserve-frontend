@@ -53,6 +53,7 @@ export default function Menu() {
           console.error("Fetch error:", err);
         });
     }
+    dispatch(fetchAllMenus(params.slug[0]));
   }, [params]);
   // console.log(code, "outlet");
   useEffect(() => {
