@@ -14,6 +14,7 @@ const ModalNotification = ({ onClose }) => {
   const [room, setRoom] = useState("");
   const [order, setOrder] = useState();
   const [checkStatus, setCheckStatus] = useState();
+  const [idTrx, setIdTrx] = useState();
   let lastTwoSegments;
 
   useEffect(() => {
@@ -49,6 +50,8 @@ const ModalNotification = ({ onClose }) => {
 
   useEffect(() => {
     const handleUserReceiveConfirm = (data) => {
+      console.log(data, "cek socket data");
+      setIdTrx(data?.data?.id);
       setCheckStatus(data?.data?.status);
     };
 
@@ -99,7 +102,7 @@ const ModalNotification = ({ onClose }) => {
               <h4 className="text-lg font-bold text-slate-700">Total</h4>
               <span className="text-xl font-semibold text-blue-600">{formatToRupiah(getTotalHarga(trx.Orders))}</span>
             </div>
-            <div className={`${["success", "onprocess", "failed"].includes(checkStatus) ? "hidden" : ""}`}>
+            <div className={`${["failed"].includes(checkStatus) && idTrx === trx.id ? "hidden" : ""}`}>
               <CancelButton redirect={params.slug.slice(-2).join("/")} totalPrice={getTotalHarga(trx.Orders)} order={order} transaction={trx} transactionId={trx.id} createdAt={trx.createdAt} room={room} status={trx.status} />
             </div>
           </div>

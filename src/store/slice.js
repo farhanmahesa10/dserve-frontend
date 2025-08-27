@@ -45,8 +45,10 @@ export const updateTransactions = createAsyncThunk("counter/updateTransactions",
   const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/transaction/updateTr/${id}`, {
     status,
   });
+  console.log(response, "cek slice");
+
   dispatch(fetchTransactions(redirect));
-  return response.data.data;
+  return await response.data.data;
 });
 export const fetchEvents = createAsyncThunk("counter/fetchEvents", async (outletCode) => {
   const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/event/showbyoutletcode/${outletCode}`);
@@ -221,6 +223,18 @@ export const counterSlice = createSlice({
       .addCase(fetchTransactions.rejected, (state, action) => {
         state.statusTransactions = "failed";
         state.error = action.error.message;
+      })
+      .addCase(updateTransactions.pending, (state) => {
+        state.statusTransactions = "loading";
+        state.error = null;
+      })
+      .addCase(updateTransactions.fulfilled, (state, action) => {
+        state.statusTransactions = "succeeded";
+        // kamu bisa update transactions di sini kalau perlu
+      })
+      .addCase(updateTransactions.rejected, (state, action) => {
+        state.statusTransactions = "failed";
+        state.error = action.payload || action.error.message;
       })
       .addCase(fetchGalleries.pending, (state) => {
         state.statusGalleries = "loading";

@@ -4,6 +4,7 @@ import { closeModal, resetPesanan, updateTransactions } from "@/store/slice";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import socket from "@/lib/socket";
+import axios from "axios";
 
 const CancelButton = ({ room, transaction, totalPrice, order, transactionId, createdAt, status, redirect }) => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
     return () => clearInterval(interval);
   }, [createdAt]);
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (order) {
       const ordered = JSON.stringify(order.orderData);
       const payload = {
@@ -46,19 +47,21 @@ const CancelButton = ({ room, transaction, totalPrice, order, transactionId, cre
         },
         Orders: ordered,
       };
+      const response = await dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" })).unwrap();
+      console.log(response, "Sukses update");
+      if (response.status === "failed") {
+        socket.emit("cancelOrderByUser", { payload }, (response) => {
+          if (response.status === "success") {
+            toast.success("Successfully canceled order");
+            localStorage.removeItem("lastOrderData");
 
-      socket.emit("joinCafe", transaction.id_outlet);
-      socket.emit("cancelOrderByUser", { payload }, (response) => {
-        if (response.status === "success") {
-          toast.success("Successfully canceled order");
-          localStorage.removeItem("lastOrderData");
-          dispatch(updateTransactions({ redirect, id: transactionId, status: "failed" }));
-          dispatch(resetPesanan());
-          dispatch(closeModal());
-        } else {
-          toast.error("Order cancellation failed");
-        }
-      });
+            dispatch(resetPesanan());
+            dispatch(closeModal());
+          } else {
+            toast.error("Order cancellation failed");
+          }
+        });
+      }
     }
     dispatch(resetPesanan());
   };
